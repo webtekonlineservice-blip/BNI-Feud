@@ -5,12 +5,10 @@ import {
   doc,
   collection,
   onSnapshot,
-  getDocs,
   query,
   orderBy,
-  where,
-  limit,
 } from 'firebase/firestore'
+import Image from 'next/image'
 
 interface Answer { id: string; answer_text: string; points: number; display_order: number; is_revealed: boolean }
 interface ActiveQuestion { id: string; question_text: string; member_name: string; member_role: string }
@@ -26,10 +24,9 @@ export default function BoardPage() {
   const [players, setPlayers] = useState<Player[]>([])
   const [playerCount, setPlayerCount] = useState(0)
   const [roundPoints, setRoundPoints] = useState(0)
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const twilioPhone = process.env.NEXT_PUBLIC_TWILIO_PHONE || '+16366892103'
 
   useEffect(() => {
-    // Listen to players
     const unsubPlayers = onSnapshot(collection(db, 'players'), (snap) => {
       const allPlayers = snap.docs.map(d => d.data() as Player)
       allPlayers.sort((a, b) => b.total_score - a.total_score)
@@ -37,8 +34,7 @@ export default function BoardPage() {
       setPlayerCount(snap.size)
     })
 
-    // Listen to game state
-    const unsubGameState = onSnapshot(doc(db, 'game_state', 'current'), async (snap) => {
+    const unsubGameState = onSnapshot(doc(db, 'game_state', 'current'), (snap) => {
       const data = snap.data()
       if (!data) return
 
@@ -63,19 +59,11 @@ export default function BoardPage() {
       }
     })
 
-    return () => {
-      unsubPlayers()
-      unsubGameState()
-    }
+    return () => { unsubPlayers(); unsubGameState() }
   }, [])
 
-  // Listen to answers when we have an active question
   useEffect(() => {
-    if (!activeQuestion?.id) {
-      setAnswers([])
-      setRoundPoints(0)
-      return
-    }
+    if (!activeQuestion?.id) { setAnswers([]); setRoundPoints(0); return }
 
     const unsubAnswers = onSnapshot(
       query(collection(db, 'questions', activeQuestion.id, 'answers'), orderBy('display_order')),
@@ -85,32 +73,41 @@ export default function BoardPage() {
         setRoundPoints(ans.filter(a => a.is_revealed).reduce((sum, a) => sum + a.points, 0))
       }
     )
-
     return () => unsubAnswers()
   }, [activeQuestion?.id])
 
-  // ── Registration / waiting screen ────────────────────────────────────────
+  // ── Registration screen ──────────────────────────────────────────────────
   if (view === 'registration') return (
-    <div className="min-h-screen bg-[#0f0f3d] flex flex-col items-center justify-center text-white p-8">
-      <div className="text-center mb-12">
-        <div className="text-7xl mb-4">⭐</div>
-        <h1 className="text-6xl font-bold text-yellow-400 mb-3">B&I Family Feud</h1>
-        <p className="text-white/50 text-2xl">Lunch is on the line</p>
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-8">
+      <div className="text-center mb-8">
+        <h1 className="text-5xl font-black mb-2">
+          <span className="text-bni-red">BNI</span> Family Feud
+        </h1>
+        <p className="text-gray-500 text-xl">Scan to join the game!</p>
       </div>
 
-      <div className="bg-white/10 rounded-3xl p-8 text-center mb-8 w-full max-w-md">
-        <p className="text-white/60 text-lg mb-2">Register to play — scan or visit</p>
-        <p className="text-yellow-400 text-3xl font-bold mb-4">{appUrl}/play</p>
-        <div className="text-white/40 text-sm">Or text your name to {process.env.NEXT_PUBLIC_TWILIO_PHONE || 'our game number'}</div>
+      <div className="mb-6">
+        <Image
+          src="/img/TB-QR.png"
+          alt="Scan to register"
+          width={280}
+          height={280}
+          className="rounded-xl shadow-lg"
+          priority
+        />
+      </div>
+
+      <div className="text-center mb-8">
+        <p className="text-gray-500 text-sm">Scan the QR code to register</p>
       </div>
 
       <div className="text-center">
-        <div className="text-5xl font-bold text-yellow-400">{playerCount}</div>
-        <div className="text-white/50 text-lg">players registered</div>
+        <div className="text-5xl font-black text-bni-red">{playerCount}</div>
+        <div className="text-gray-500 text-lg mt-1">players ready</div>
         {players.length > 0 && (
-          <div className="flex flex-wrap gap-2 justify-center mt-4 max-w-lg">
+          <div className="flex flex-wrap gap-2 justify-center mt-4 max-w-xl">
             {players.map((p, i) => (
-              <span key={i} className="bg-white/10 text-white text-sm px-3 py-1 rounded-full">{p.display_name}</span>
+              <span key={i} className="bg-gray-100 text-black text-sm px-3 py-1 rounded-full border border-gray-200">{p.display_name}</span>
             ))}
           </div>
         )}
@@ -120,22 +117,22 @@ export default function BoardPage() {
 
   // ── Game board ────────────────────────────────────────────────────────────
   if (view === 'game') return (
-    <div className="min-h-screen bg-[#0f0f3d] text-white p-6 flex flex-col">
+    <div className="min-h-[calc(100vh-4rem)] p-6 flex flex-col">
       {/* Top bar */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <div className="text-white/50 text-sm uppercase tracking-wide">Question about</div>
-          <div className="text-yellow-400 text-2xl font-bold">{activeQuestion?.member_name}</div>
-          <div className="text-white/40 text-sm">{activeQuestion?.member_role}</div>
+          <div className="text-gray-500 text-sm uppercase tracking-wide">Question about</div>
+          <div className="text-bni-red text-2xl font-bold">{activeQuestion?.member_name}</div>
+          <div className="text-gray-500 text-sm">{activeQuestion?.member_role}</div>
         </div>
         <div className="text-right">
-          <div className="text-white/50 text-sm">Round points</div>
-          <div className="text-4xl font-bold text-yellow-400">{roundPoints}</div>
+          <div className="text-gray-500 text-sm">Round points</div>
+          <div className="text-4xl font-black text-bni-red">{roundPoints}</div>
         </div>
       </div>
 
       {/* Question */}
-      <div className="bg-[#1a1a6e] rounded-2xl p-6 mb-6 text-center">
+      <div className="bg-bni-red rounded-2xl p-6 mb-6 text-center">
         <p className="text-white text-2xl font-medium leading-relaxed">{activeQuestion?.question_text}</p>
       </div>
 
@@ -144,13 +141,17 @@ export default function BoardPage() {
         {answers.map(ans => (
           <div
             key={ans.id}
-            className={`rounded-2xl p-4 flex flex-col justify-between transition-all duration-500 ${ans.is_revealed ? 'bg-green-800' : 'bg-[#8b0000]'}`}
+            className={`rounded-2xl p-4 flex flex-col justify-between transition-all duration-500 border-2 ${
+              ans.is_revealed
+                ? 'bg-white border-green-500'
+                : 'bg-gray-100 border-gray-300'
+            }`}
           >
-            <div className="text-white/50 text-sm">#{ans.display_order}</div>
-            <div className={`text-xl font-bold ${ans.is_revealed ? 'text-white' : 'text-transparent select-none'}`}>
+            <div className="text-gray-400 text-sm">#{ans.display_order}</div>
+            <div className={`text-xl font-bold ${ans.is_revealed ? 'text-black' : 'text-transparent select-none bg-gray-200 rounded'}`}>
               {ans.is_revealed ? ans.answer_text : '████████████'}
             </div>
-            {ans.is_revealed && <div className="text-yellow-400 text-lg font-bold">{ans.points} pts</div>}
+            {ans.is_revealed && <div className="text-bni-red text-lg font-bold">{ans.points} pts</div>}
           </div>
         ))}
       </div>
@@ -158,7 +159,7 @@ export default function BoardPage() {
       {/* Strikes */}
       <div className="flex items-center justify-center gap-8">
         {[1,2,3].map(i => (
-          <span key={i} className={`text-6xl font-bold transition-all ${i <= strikes ? 'text-red-500 scale-110' : 'text-white/20'}`}>✗</span>
+          <span key={i} className={`text-6xl font-bold transition-all ${i <= strikes ? 'text-bni-red scale-110' : 'text-gray-200'}`}>✗</span>
         ))}
       </div>
     </div>
@@ -166,17 +167,19 @@ export default function BoardPage() {
 
   // ── Leaderboard ───────────────────────────────────────────────────────────
   if (view === 'leaderboard') return (
-    <div className="min-h-screen bg-[#0f0f3d] text-white p-8 flex flex-col">
-      <h1 className="text-5xl font-bold text-yellow-400 text-center mb-10">🏆 Final Leaderboard</h1>
-      <div className="max-w-2xl mx-auto w-full space-y-4">
+    <div className="min-h-[calc(100vh-4rem)] p-8 flex flex-col">
+      <h1 className="text-4xl font-black text-center mb-10">
+        <span className="text-bni-red">LEADERBOARD</span>
+      </h1>
+      <div className="max-w-2xl mx-auto w-full space-y-3">
         {players.map((p, i) => (
-          <div key={i} className={`flex items-center gap-4 rounded-2xl p-5 ${i === 0 ? 'bg-yellow-400/20 border-2 border-yellow-400' : 'bg-white/10'}`}>
-            <div className="text-4xl">{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}</div>
+          <div key={i} className={`flex items-center gap-4 rounded-xl p-4 border-2 ${i === 0 ? 'border-bni-red bg-red-50' : 'border-gray-200'}`}>
+            <div className="text-3xl font-bold text-gray-400 w-10">{i + 1}</div>
             <div className="flex-1">
-              <div className="text-xl font-bold">{p.display_name}</div>
-              {i === 0 && <div className="text-yellow-400 text-sm">🍽 Wins lunch!</div>}
+              <div className="text-lg font-bold">{p.display_name}</div>
+              {i === 0 && <div className="text-bni-red text-sm font-medium">Wins lunch!</div>}
             </div>
-            <div className={`text-3xl font-bold ${i === 0 ? 'text-yellow-400' : 'text-white'}`}>{p.total_score}</div>
+            <div className={`text-2xl font-black ${i === 0 ? 'text-bni-red' : 'text-black'}`}>{p.total_score}</div>
           </div>
         ))}
       </div>

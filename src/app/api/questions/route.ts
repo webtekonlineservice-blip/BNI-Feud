@@ -5,55 +5,71 @@ import { adminDb } from '@/lib/firebaseAdmin'
 export async function GET() {
   const questionsSnap = await adminDb
     .collection('questions')
-    .orderBy('created_at')
+    .orderBy('display_order')
     .get()
 
   const questions = await Promise.all(
-    questionsSnap.docs.map(async (doc) => {
-      const q = { id: doc.id, ...doc.data() }
+    questionsSnap.docs.map(async (qDoc) => {
+      const qData = qDoc.data()
 
       // Get associated member
       let members = null
-      if ((q as any).member_id) {
-        const memberDoc = await adminDb.collection('members').doc((q as any).member_id).get()
+      if (qData.member_id) {
+        const memberDoc = await adminDb.collection('members').doc(qData.member_id).get()
         if (memberDoc.exists) {
           members = { id: memberDoc.id, ...memberDoc.data() }
         }
       }
 
-      // Get associated answers
+      // Get answers from subcollection
       const answersSnap = await adminDb
-        .collection('question_answers')
-        .where('question_id', '==', doc.id)
+        .collection('questions')
+        .doc(qDoc.id)
+        .collection('answers')
         .orderBy('display_order')
         .get()
+
       const question_answers = answersSnap.docs.map(a => ({ id: a.id, ...a.data() }))
 
-      return { ...q, members, question_answers }
+      return { id: qDoc.id, ...qData, members, question_answers }
     })
   )
 
   return NextResponse.json(questions)
 }
 
-// PATCH /api/questions — set active question + open the round
+// PATCH /api/questions — activate or complete a question
 export async function PATCH(req: NextRequest) {
   const { question_id, action } = await req.json()
 
   if (action === 'activate') {
     // Deactivate all others first
-    const allQuestions = await adminDb.collection('questions').where('is_active', '==', true).get()
+    const allActive = await adminDb.collection('questions').where('is_active', '==', true).get()
     const batch = adminDb.batch()
-    allQuestions.docs.forEach(doc => {
+    allActive.docs.forEach(doc => {
       batch.update(doc.ref, { is_active: false })
     })
 
     // Activate this one
     batch.update(adminDb.collection('questions').doc(question_id), { is_active: true })
 
+    // Get question + member info for game state
+    const questionDoc = await adminDb.collection('questions').doc(question_id).get()
+    const questionData = questionDoc.data()
+    let memberName = ''
+    let memberRole = ''
+    if (questionData?.member_id) {
+      const memberDoc = await adminDb.collection('members').doc(questionData.member_id).get()
+      memberName = memberDoc.data()?.name || ''
+      memberRole = memberDoc.data()?.role || ''
+    }
+
     // Update game state
-    batch.set(adminDb.collection('game_state').doc('singleton'), {
+    batch.set(adminDb.collection('game_state').doc('current'), {
       active_question_id: question_id,
+      question_text: questionData?.question_text || '',
+      member_name: memberName,
+      member_role: memberRole,
       game_phase: 'playing',
       strikes: 0,
       updated_at: new Date().toISOString(),
@@ -71,9 +87,13 @@ export async function PATCH(req: NextRequest) {
       is_complete: true,
     })
 
-    batch.set(adminDb.collection('game_state').doc('singleton'), {
+    batch.set(adminDb.collection('game_state').doc('current'), {
       active_question_id: null,
+      question_text: '',
+      member_name: '',
+      member_role: '',
       game_phase: 'registration',
+      strikes: 0,
       updated_at: new Date().toISOString(),
     }, { merge: true })
 

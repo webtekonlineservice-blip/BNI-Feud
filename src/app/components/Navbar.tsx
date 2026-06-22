@@ -4,24 +4,21 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
 const navLinks = [
-  { href: '/', label: 'Home', icon: '🏠' },
-  { href: '/play', label: 'Play', icon: '🎮' },
-  { href: '/rules', label: 'Rules', icon: '📋' },
-  { href: '/host', label: 'Host', icon: '🎤' },
-  { href: '/board', label: 'Board', icon: '📺' },
+  { href: '/', label: 'Home' },
+  { href: '/rules', label: 'Rules' },
+  { href: '/host', label: 'Host' },
+  { href: '/board', label: 'Board' },
 ]
 
 export default function Navbar() {
   const pathname = usePathname()
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-[#0a0a2e]/90 backdrop-blur-md border-b border-white/10">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-bni-red shadow-md">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 group">
-          <span className="text-2xl">⭐</span>
-          <span className="text-lg font-bold text-yellow-400 group-hover:text-yellow-300 transition">
-            B&I Feud
-          </span>
+        <Link href="/" className="flex items-center gap-3">
+          <span className="text-white text-2xl font-black tracking-tight">BNI</span>
+          <span className="text-white/80 text-sm font-medium hidden sm:inline">Think Big</span>
         </Link>
         <div className="flex items-center gap-1">
           {navLinks.map((link) => {
@@ -30,13 +27,12 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition ${
+                className={`px-3 py-1.5 rounded text-sm font-medium transition ${
                   isActive
-                    ? 'bg-white/15 text-yellow-400'
-                    : 'text-gray-300 hover:text-white hover:bg-white/10'
+                    ? 'bg-white text-bni-red'
+                    : 'text-white hover:bg-white/20'
                 }`}
               >
-                <span className="mr-1.5">{link.icon}</span>
                 {link.label}
               </Link>
             )

@@ -1,21 +1,12 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { db } from '@/lib/firebase'
-import {
-  collection,
-  doc,
-  onSnapshot,
-  getDocs,
-  updateDoc,
-  query,
-  orderBy,
-  where,
-} from 'firebase/firestore'
-import QRCode from 'qrcode'
+import { doc, onSnapshot, updateDoc } from 'firebase/firestore'
+import Image from 'next/image'
 
 interface Member { id: string; name: string; role: string; company: string; display_order: number }
 interface Answer { id: string; answer_text: string; points: number; display_order: number; is_revealed: boolean }
-interface Question { id: string; member_id: string; question_text: string; is_active: boolean; is_complete: boolean; member: Member; answers: Answer[] }
+interface Question { id: string; member_id: string; question_text: string; is_active: boolean; is_complete: boolean; members: Member; question_answers: Answer[] }
 interface Player { id: string; display_name: string; phone_number: string; total_score: number }
 interface Response { id: string; raw_answer: string; matched_answer: string | null; points_earned: number; display_name?: string }
 
@@ -24,128 +15,66 @@ export default function HostPage() {
   const [players, setPlayers] = useState<Player[]>([])
   const [responses, setResponses] = useState<Response[]>([])
   const [selected, setSelected] = useState<Question | null>(null)
-  const [qrDataUrl, setQrDataUrl] = useState('')
   const [strikes, setStrikes] = useState(0)
   const [gamePhase, setGamePhase] = useState('registration')
   const [loading, setLoading] = useState(true)
   const [activeQuestionId, setActiveQuestionId] = useState<string | null>(null)
+  const [showQrModal, setShowQrModal] = useState(false)
 
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+  const twilioPhone = process.env.NEXT_PUBLIC_TWILIO_PHONE || '+16366892103'
 
   const loadQuestions = useCallback(async () => {
-    const questionsSnap = await getDocs(query(collection(db, 'questions'), orderBy('display_order')))
-    const qs: Question[] = []
-
-    for (const qDoc of questionsSnap.docs) {
-      const qData = qDoc.data()
-
-      let member: Member = { id: '', name: '', role: '', company: '', display_order: 0 }
-      if (qData.member_id) {
-        const membersSnap = await getDocs(query(collection(db, 'members'), where('__name__', '==', qData.member_id)))
-        if (!membersSnap.empty) {
-          const mData = membersSnap.docs[0].data()
-          member = { id: membersSnap.docs[0].id, ...mData } as Member
-        }
-      }
-
-      const answersSnap = await getDocs(query(collection(db, 'questions', qDoc.id, 'answers'), orderBy('display_order')))
-      const answers: Answer[] = answersSnap.docs.map(aDoc => ({ id: aDoc.id, ...aDoc.data() } as Answer))
-
-      qs.push({
-        id: qDoc.id,
-        member_id: qData.member_id,
-        question_text: qData.question_text,
-        is_active: qData.is_active || false,
-        is_complete: qData.is_complete || false,
-        member,
-        answers,
-      })
-    }
-
-    setQuestions(qs)
+    try {
+      const res = await fetch('/api/questions')
+      setQuestions(await res.json())
+    } catch (e) { console.error('Failed to load questions:', e) }
   }, [])
 
   const loadPlayers = useCallback(async () => {
-    const snap = await getDocs(query(collection(db, 'players'), orderBy('total_score', 'desc')))
-    setPlayers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Player)))
+    try {
+      const res = await fetch('/api/players')
+      setPlayers(await res.json())
+    } catch (e) { console.error('Failed to load players:', e) }
   }, [])
 
   const loadResponses = useCallback(async (questionId: string) => {
-    const snap = await getDocs(
-      query(collection(db, 'responses'), where('question_id', '==', questionId), orderBy('received_at', 'desc'))
-    )
-    setResponses(snap.docs.map(d => ({ id: d.id, ...d.data() } as Response)))
+    try {
+      const res = await fetch(`/api/answers?question_id=${questionId}`)
+      setResponses(await res.json())
+    } catch (e) { console.error('Failed to load responses:', e) }
   }, [])
 
   useEffect(() => {
-    const init = async () => {
-      await Promise.all([loadQuestions(), loadPlayers()])
-      setLoading(false)
-    }
+    const init = async () => { await Promise.all([loadQuestions(), loadPlayers()]); setLoading(false) }
     init()
-
-    const unsubGameState = onSnapshot(doc(db, 'game_state', 'current'), (snap) => {
+    const unsub = onSnapshot(doc(db, 'game_state', 'current'), (snap) => {
       const data = snap.data()
       if (!data) return
       setStrikes(data.strikes || 0)
       setGamePhase(data.game_phase || 'registration')
       setActiveQuestionId(data.active_question_id || null)
     })
-
-    const unsubPlayers = onSnapshot(collection(db, 'players'), () => {
-      loadPlayers()
-    })
-
-    const unsubResponses = onSnapshot(collection(db, 'responses'), () => {
-      if (activeQuestionId) loadResponses(activeQuestionId)
-      loadPlayers()
-    })
-
-    return () => {
-      unsubGameState()
-      unsubPlayers()
-      unsubResponses()
-    }
-  }, [loadQuestions, loadPlayers, loadResponses, activeQuestionId])
+    return () => unsub()
+  }, [loadQuestions, loadPlayers])
 
   useEffect(() => {
-    if (activeQuestionId) {
-      loadResponses(activeQuestionId)
-    } else {
-      setResponses([])
-    }
+    if (activeQuestionId) { loadResponses(activeQuestionId) } else { setResponses([]) }
   }, [activeQuestionId, loadResponses])
 
-  const openModal = async (q: Question) => {
-    setSelected(q)
-    const url = `${appUrl}/play`
-    const dataUrl = await QRCode.toDataURL(url, { width: 180, margin: 1, color: { dark: '#1a1a6e', light: '#ffffff' } })
-    setQrDataUrl(dataUrl)
-  }
+  useEffect(() => {
+    if (!activeQuestionId || gamePhase !== 'playing') return
+    const interval = setInterval(() => { loadResponses(activeQuestionId); loadPlayers() }, 3000)
+    return () => clearInterval(interval)
+  }, [activeQuestionId, gamePhase, loadResponses, loadPlayers])
 
   const activateQuestion = async (q: Question) => {
-    await fetch('/api/questions', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question_id: q.id, action: 'activate' }),
-    })
-    setActiveQuestionId(q.id)
-    setGamePhase('playing')
-    setStrikes(0)
-    setResponses([])
-    loadQuestions()
+    await fetch('/api/questions', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question_id: q.id, action: 'activate' }) })
+    setActiveQuestionId(q.id); setGamePhase('playing'); setStrikes(0); setResponses([]); loadQuestions()
   }
 
   const completeQuestion = async (q: Question) => {
-    await fetch('/api/questions', {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question_id: q.id, action: 'complete' }),
-    })
-    setSelected(null)
-    setActiveQuestionId(null)
-    setGamePhase('registration')
-    loadQuestions()
+    await fetch('/api/questions', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question_id: q.id, action: 'complete' }) })
+    setSelected(null); setActiveQuestionId(null); setGamePhase('registration'); loadQuestions()
   }
 
   const addStrike = async () => {
@@ -155,7 +84,7 @@ export default function HostPage() {
   }
 
   const revealAnswer = async (questionId: string, answerId: string) => {
-    await updateDoc(doc(db, 'questions', questionId, 'answers', answerId), { is_revealed: true })
+    await fetch('/api/answers', { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ question_id: questionId, answer_id: answerId, action: 'reveal' }) })
     loadQuestions()
   }
 
@@ -163,162 +92,161 @@ export default function HostPage() {
   const total = questions.length
 
   if (loading) return (
-    <div className="min-h-screen bg-[#0f0f3d] flex items-center justify-center">
-      <p className="text-yellow-400 text-xl animate-pulse">Loading B&I Feud...</p>
+    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center">
+      <p className="text-bni-red text-xl animate-pulse">Loading...</p>
     </div>
   )
 
   return (
-    <div className="min-h-screen bg-[#0f0f3d] text-white p-4">
-      <div className="flex items-center justify-between mb-6">
+    <div className="min-h-[calc(100vh-4rem)] p-4 max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
         <div>
-          <h1 className="text-2xl font-bold text-yellow-400">⭐ B&I Family Feud</h1>
-          <p className="text-white/60 text-sm">Host Control Panel</p>
+          <h1 className="text-xl font-black"><span className="text-bni-red">HOST</span> PANEL</h1>
+          <p className="text-gray-500 text-xs">{players.length} players · {completed}/{total} rounds</p>
         </div>
-        <div className="text-right">
-          <div className="text-white/50 text-xs">Progress</div>
-          <div className="text-xl font-bold">{completed}/{total}</div>
-          <div className="text-white/50 text-xs">{players.length} players registered</div>
+        <div className="bg-bni-red text-white rounded-lg px-3 py-1 text-center">
+          <div className="text-xs">Progress</div>
+          <div className="text-lg font-bold">{completed}/{total}</div>
         </div>
       </div>
 
-      <div className="w-full bg-white/10 rounded-full h-2 mb-6">
-        <div className="bg-yellow-400 h-2 rounded-full transition-all" style={{ width: `${total ? (completed / total) * 100 : 0}%` }} />
+      {/* Progress bar */}
+      <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
+        <div className="bg-bni-red h-2 rounded-full transition-all" style={{ width: `${total ? (completed / total) * 100 : 0}%` }} />
       </div>
 
-      <div className={`rounded-xl p-3 mb-6 text-center text-sm font-medium ${gamePhase === 'playing' ? 'bg-green-800/50 text-green-300' : 'bg-white/10 text-white/60'}`}>
-        {gamePhase === 'playing'
-          ? '🟢 ROUND OPEN — answers coming in via SMS'
-          : '⏸ Waiting — click a member to open their round'}
+      {/* Status */}
+      <div className={`rounded-lg p-3 mb-4 text-center text-sm font-medium border ${gamePhase === 'playing' ? 'bg-green-50 border-green-300 text-green-700' : 'bg-gray-50 border-gray-200 text-gray-500'}`}>
+        {gamePhase === 'playing' ? '🟢 ROUND OPEN — answers via SMS' : '⏸ Click a member to start a round'}
       </div>
 
-      <div className="grid grid-cols-3 gap-3 mb-6">
+      {/* QR Button */}
+      <button onClick={() => setShowQrModal(true)} className="w-full mb-4 bg-bni-red hover:bg-bni-red-dark text-white font-bold py-3 rounded-lg transition">
+        📱 Show QR Code
+      </button>
+
+      {/* Member grid */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
         {questions.map(q => (
-          <button
-            key={q.id}
-            onClick={() => openModal(q)}
-            className={`rounded-xl p-3 text-center transition-all border ${
-              q.is_complete
-                ? 'bg-green-900/40 border-green-600 opacity-75'
-                : q.is_active
-                ? 'bg-yellow-500/20 border-yellow-400 ring-2 ring-yellow-400'
-                : 'bg-white/5 border-white/10 hover:bg-white/10'
-            }`}
-          >
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold mx-auto mb-2 ${q.is_complete ? 'bg-green-600' : 'bg-[#1a1a6e]'}`}>
-              {q.is_complete ? '✓' : q.member?.name?.split(' ').map((n: string) => n[0]).join('')}
+          <button key={q.id} onClick={() => setSelected(q)}
+            className={`rounded-lg p-2 text-center transition-all border-2 ${
+              q.is_complete ? 'bg-green-50 border-green-400'
+              : q.is_active ? 'bg-red-50 border-bni-red ring-2 ring-bni-red'
+              : 'bg-white border-gray-200 hover:border-bni-red'
+            }`}>
+            <div className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold mx-auto mb-1 text-white ${q.is_complete ? 'bg-green-500' : 'bg-bni-red'}`}>
+              {q.is_complete ? '✓' : q.members?.name?.split(' ').map((n: string) => n[0]).join('')}
             </div>
-            <div className="text-xs font-medium truncate">{q.member?.name}</div>
-            <div className="text-xs text-white/40 truncate">{q.member?.role}</div>
-            {q.is_active && <div className="text-xs text-yellow-400 mt-1">ACTIVE</div>}
+            <div className="text-[10px] font-medium truncate text-black">{q.members?.name}</div>
+            {q.is_active && <div className="text-[10px] text-bni-red font-bold">LIVE</div>}
           </button>
         ))}
       </div>
 
+      {/* Live answers */}
       {responses.length > 0 && (
-        <div className="bg-white/5 rounded-xl p-4 mb-6">
-          <div className="text-xs text-white/50 uppercase tracking-wide mb-3">Live Answers</div>
-          <div className="space-y-2 max-h-48 overflow-y-auto">
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4">
+          <div className="text-xs text-gray-500 uppercase tracking-wide mb-2 font-medium">Live Answers ({responses.length})</div>
+          <div className="space-y-1.5 max-h-36 overflow-y-auto">
             {responses.map(r => (
-              <div key={r.id} className="flex items-center justify-between text-sm">
+              <div key={r.id} className="flex items-center justify-between text-xs">
                 <span><span className="font-medium">{r.display_name}</span>: &quot;{r.raw_answer}&quot;</span>
-                {r.matched_answer
-                  ? <span className="text-green-400 text-xs">+{r.points_earned} ✓</span>
-                  : <span className="text-red-400 text-xs">miss</span>}
+                {r.matched_answer ? <span className="text-green-600 font-medium">+{r.points_earned}</span> : <span className="text-bni-red">✗</span>}
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="bg-white/5 rounded-xl p-4">
-        <div className="text-xs text-white/50 uppercase tracking-wide mb-3">Registered Players ({players.length})</div>
-        <div className="flex flex-wrap gap-2">
+      {/* Players */}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+        <div className="text-xs text-gray-500 uppercase tracking-wide mb-2 font-medium">Players ({players.length})</div>
+        <div className="flex flex-wrap gap-1.5">
           {players.map(p => (
-            <span key={p.id} className="bg-[#1a1a6e] text-yellow-400 text-xs px-2 py-1 rounded-full">
-              {p.display_name} · {p.total_score}pts
+            <span key={p.id} className="bg-white text-black text-[10px] px-2 py-0.5 rounded-full border border-gray-300">
+              {p.display_name} · {p.total_score}
             </span>
           ))}
         </div>
-        {players.length === 0 && <p className="text-white/40 text-sm">Waiting for players to text in...</p>}
+        {players.length === 0 && <p className="text-gray-400 text-xs">Waiting for SMS registrations...</p>}
       </div>
 
+      {/* Question Modal */}
       {selected && (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center p-4 z-50" onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}>
-          <div className="bg-[#0f0f3d] border border-white/20 rounded-2xl w-full max-w-md overflow-hidden">
-            <div className="bg-[#1a1a6e] p-4 flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-yellow-400 flex items-center justify-center text-[#1a1a6e] font-bold text-lg">
-                {selected.member?.name?.split(' ').map((n: string) => n[0]).join('')}
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50" onClick={e => { if (e.target === e.currentTarget) setSelected(null) }}>
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-xl">
+            <div className="bg-bni-red p-4 flex items-center gap-3">
+              <div className="w-11 h-11 rounded-full bg-white flex items-center justify-center text-bni-red font-bold text-sm">
+                {selected.members?.name?.split(' ').map((n: string) => n[0]).join('')}
               </div>
               <div className="flex-1">
-                <div className="font-bold text-lg">{selected.member?.name}</div>
-                <div className="text-white/60 text-sm">{selected.member?.role} · {selected.member?.company}</div>
+                <div className="font-bold text-white">{selected.members?.name}</div>
+                <div className="text-white/80 text-xs">{selected.members?.role}</div>
               </div>
-              <button onClick={() => setSelected(null)} className="text-white/40 hover:text-white text-2xl">×</button>
+              <button onClick={() => setSelected(null)} className="text-white/80 hover:text-white text-xl">×</button>
             </div>
 
-            <div className="p-4 space-y-4">
-              <div className="bg-yellow-400/10 border border-yellow-400/30 rounded-xl p-3">
-                <div className="text-xs text-yellow-400/70 uppercase tracking-wide mb-1">The Question</div>
-                <p className="text-yellow-100 font-medium">{selected.question_text}</p>
+            <div className="p-4 space-y-3">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                <p className="text-black font-medium text-sm">{selected.question_text}</p>
               </div>
 
-              <div className="flex gap-3 bg-white/5 rounded-xl p-3">
-                {qrDataUrl && <img src={qrDataUrl} alt="QR code" className="w-20 h-20 rounded-lg" />}
-                <div className="flex-1">
-                  <p className="text-sm font-medium mb-1">Members scan to play</p>
-                  <p className="text-white/50 text-xs mb-2">Or text your answer to:</p>
-                  <p className="text-yellow-400 font-bold">{appUrl.replace('https://', '')}/play</p>
-                  <p className="text-white/40 text-xs mt-1">Twilio: {process.env.NEXT_PUBLIC_TWILIO_PHONE}</p>
-                </div>
-              </div>
-
+              {/* Strikes */}
               <div className="flex items-center justify-between">
-                <div className="flex gap-3">
+                <div className="flex gap-2">
                   {[1,2,3].map(i => (
-                    <span key={i} className={`text-3xl font-bold transition-colors ${i <= strikes ? 'text-red-500' : 'text-white/20'}`}>✗</span>
+                    <span key={i} className={`text-2xl font-bold ${i <= strikes ? 'text-bni-red' : 'text-gray-200'}`}>✗</span>
                   ))}
                 </div>
-                <button onClick={addStrike} className="bg-red-700 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm font-medium">
-                  + Strike
-                </button>
+                <button onClick={addStrike} className="bg-bni-red hover:bg-bni-red-dark text-white px-3 py-1.5 rounded text-xs font-medium transition">+ Strike</button>
               </div>
 
-              <div>
-                <div className="text-xs text-white/50 uppercase tracking-wide mb-2">Answer Board (tap to reveal)</div>
-                <div className="grid grid-cols-2 gap-2">
-                  {[...selected.answers].sort((a, b) => a.display_order - b.display_order).map(ans => (
-                    <button
-                      key={ans.id}
-                      onClick={() => revealAnswer(selected.id, ans.id)}
-                      className={`rounded-lg p-2 text-left transition-all ${ans.is_revealed ? 'bg-green-800' : 'bg-red-900 hover:bg-red-800'}`}
-                    >
-                      <div className="text-xs text-white/50">#{ans.display_order}</div>
-                      <div className={`text-sm font-medium ${ans.is_revealed ? 'text-white' : 'text-transparent select-none bg-white/10 rounded'}`}>
-                        {ans.is_revealed ? ans.answer_text : '██████████'}
-                      </div>
-                      <div className="text-xs text-yellow-400">{ans.points} pts</div>
-                    </button>
-                  ))}
-                </div>
+              {/* Answers */}
+              <div className="grid grid-cols-2 gap-2">
+                {[...(selected.question_answers || [])].sort((a, b) => a.display_order - b.display_order).map(ans => (
+                  <button key={ans.id} onClick={() => revealAnswer(selected.id, ans.id)}
+                    className={`rounded-lg p-2 text-left transition-all border-2 ${ans.is_revealed ? 'bg-green-50 border-green-400' : 'bg-gray-100 border-gray-300 hover:border-bni-red'}`}>
+                    <div className="text-[10px] text-gray-400">#{ans.display_order}</div>
+                    <div className={`text-xs font-medium ${ans.is_revealed ? 'text-black' : 'text-transparent bg-gray-200 rounded select-none'}`}>
+                      {ans.is_revealed ? ans.answer_text : '██████'}
+                    </div>
+                    <div className="text-[10px] text-bni-red font-medium">{ans.points} pts</div>
+                  </button>
+                ))}
               </div>
 
-              <div className="flex gap-2 pt-2">
+              {/* Actions */}
+              <div className="flex gap-2">
                 {!selected.is_active && !selected.is_complete && (
-                  <button onClick={() => activateQuestion(selected)} className="flex-1 bg-yellow-400 text-[#1a1a6e] font-bold py-3 rounded-xl">
+                  <button onClick={() => activateQuestion(selected)} className="flex-1 bg-bni-red hover:bg-bni-red-dark text-white font-bold py-2.5 rounded-lg text-sm transition">
                     🟢 Open Round
                   </button>
                 )}
                 {selected.is_active && (
-                  <button onClick={() => completeQuestion(selected)} className="flex-1 bg-green-700 hover:bg-green-600 text-white font-bold py-3 rounded-xl">
-                    ✓ Mark Complete
+                  <button onClick={() => completeQuestion(selected)} className="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-2.5 rounded-lg text-sm transition">
+                    ✓ Complete
                   </button>
                 )}
-                <button onClick={() => setSelected(null)} className="px-4 bg-white/10 hover:bg-white/20 text-white py-3 rounded-xl">
-                  Close
-                </button>
+                <button onClick={() => setSelected(null)} className="px-4 bg-gray-100 hover:bg-gray-200 text-black py-2.5 rounded-lg text-sm border border-gray-300">Close</button>
               </div>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* QR Modal */}
+      {showQrModal && (
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-[60]" onClick={() => setShowQrModal(false)}>
+          <div className="text-center bg-white rounded-2xl p-8 shadow-2xl max-w-sm" onClick={e => e.stopPropagation()}>
+            <h2 className="text-2xl font-black mb-1"><span className="text-bni-red">SCAN</span> TO JOIN</h2>
+            <p className="text-gray-500 text-sm mb-6">Opens registration — just hit send</p>
+            <Image src="/img/TB-QR.png" alt="Scan to register" width={250} height={250} className="mx-auto mb-6 rounded-lg" />
+            <p className="text-gray-400 text-sm">Or text your name to</p>
+            <p className="text-bni-red text-2xl font-bold mt-1 mb-6">{twilioPhone}</p>
+            <button onClick={() => setShowQrModal(false)} className="bg-bni-red hover:bg-bni-red-dark text-white px-6 py-2 rounded-lg font-medium transition">
+              Close
+            </button>
           </div>
         </div>
       )}

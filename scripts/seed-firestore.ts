@@ -1,6 +1,6 @@
 /**
  * scripts/seed-firestore.ts
- * Seeds the Firestore database with members and initializes game state.
+ * Seeds Firestore with Think Big St. Louis chapter members.
  * Run: npx ts-node --project tsconfig.scripts.json scripts/seed-firestore.ts
  */
 
@@ -8,7 +8,6 @@ import * as admin from 'firebase-admin'
 import * as dotenv from 'dotenv'
 dotenv.config({ path: '.env.local' })
 
-// Initialize Firebase Admin
 const app = admin.initializeApp({
   credential: admin.credential.cert({
     projectId: process.env.FIREBASE_PROJECT_ID,
@@ -20,38 +19,41 @@ const app = admin.initializeApp({
 const db = admin.firestore()
 
 const members = [
-  { name: 'Alex B',     role: 'Financial Advisor',     company: 'Wealth Partners',      fun_facts: 'Loves golf, always talking about market trends, has a coffee mug collection', display_order: 1 },
-  { name: 'Brittany C', role: 'Real Estate Agent',     company: 'Prime Realty',         fun_facts: 'Sold 40+ homes last year, drives a red convertible, obsessed with staging', display_order: 2 },
-  { name: 'Carlos D',   role: 'Insurance Broker',      company: 'Shield Insurance',     fun_facts: 'Youth soccer coach, can quote any insurance policy from memory, always prepared', display_order: 3 },
-  { name: 'Diane E',    role: 'Marketing Consultant',  company: 'Brand Boost Co',       fun_facts: 'Uses buzzwords constantly, runs a food blog, claims to know every influencer', display_order: 4 },
-  { name: 'Eric F',     role: 'CPA / Accountant',      company: 'Eric F & Associates',  fun_facts: 'Works 80hr weeks in April, collects vintage calculators, very literal sense of humor', display_order: 5 },
-  { name: 'Fatima G',   role: 'Attorney',              company: 'Garza Law Group',      fun_facts: 'Never off the clock, gives legal advice at every party, drives a Tesla', display_order: 6 },
-  { name: 'Gilbert H',  role: 'Web Developer',         company: 'Freelance',            fun_facts: 'Builds full-stack apps, always has a side project, knows every JavaScript framework', display_order: 7 },
-  { name: 'Hannah I',   role: 'HR Consultant',         company: 'People First HR',      fun_facts: 'Has read every HR policy ever written, mediates family disputes on vacation', display_order: 8 },
-  { name: 'Ivan J',     role: 'Financial Planner',     company: 'Future Wealth Mgmt',   fun_facts: 'Talks about compound interest at dinner, has a spreadsheet for everything', display_order: 9 },
-  { name: 'Jennifer K', role: 'Business Coach',        company: 'Thrive Coaching',      fun_facts: 'Posts morning motivation quotes daily, has done every personality test known to man', display_order: 10 },
-  { name: 'Kevin L',    role: 'Mortgage Lender',       company: 'Home Loan Pros',       fun_facts: 'Can calculate a monthly payment in his head, has a handshake for every occasion', display_order: 11 },
-  { name: 'Laura M',    role: 'Nutritionist',          company: 'Nourish Wellness',     fun_facts: 'Brings kale chips to every event, judges your lunch order, runs half-marathons', display_order: 12 },
-  { name: 'Marcus N',   role: 'IT Solutions',          company: 'NetFix IT',            fun_facts: 'Fixes everyones computer at holiday parties, always on call, loves Star Trek', display_order: 13 },
-  { name: 'Nicole O',   role: 'Event Planner',         company: 'Perfect Events Co',    fun_facts: 'Organizes everything including her friends weddings, has backup plans for backup plans', display_order: 14 },
-  { name: 'Oscar P',    role: 'Commercial Realtor',    company: 'Metro Commercial RE',  fun_facts: 'Never met a strip mall he didnt like, knows the zoning laws of every suburb', display_order: 15 },
-  { name: 'Priya Q',    role: 'Healthcare Consultant', company: 'Health Strategy Group', fun_facts: 'Self-diagnoses everything on WebMD, knows every medical acronym, very organized', display_order: 16 },
-  { name: 'Rachel R',   role: 'Social Media Manager',  company: 'Click & Engage',       fun_facts: 'Always filming content, uses hashtags in real conversation, checks analytics hourly', display_order: 17 },
-  { name: 'Sam T',      role: 'Business Attorney',     company: 'Turner Legal Group',   fun_facts: 'Gets called at 11pm by clients, has a contract for everything, very dry humor', display_order: 18 },
+  { name: 'Daniel Buerges',    role: 'Window Treatments',         company: 'Gotcha Covered',                         fun_facts: 'Visitor Host, knows every window in Kirkwood, always upbeat and welcoming newcomers', display_order: 1 },
+  { name: 'Fredrick Koury',    role: 'Commercial Insurance',      company: 'Koury Agency, Inc.',                     fun_facts: 'Secretary/Treasurer, been in insurance forever, knows every risk scenario imaginable, very detail-oriented', display_order: 2 },
+  { name: 'Irene Hasegawa',    role: 'Residential Real Estate',   company: 'Keller Williams Realty STL',             fun_facts: 'Member Relations, sells homes like hotcakes, always networking, knows every neighborhood in STL', display_order: 3 },
+  { name: 'Jaren Underwood',   role: 'Residential Painter',       company: 'Malone Painting',                        fun_facts: 'Chapter President, leads the group, can match any paint color by memory, always covered in paint specs', display_order: 4 },
+  { name: 'Kelsey Alvarado',   role: 'Banking Services',          company: 'BMO Harris Bank',                        fun_facts: 'Vice President, knows everyones financial situation, always professional, great with numbers', display_order: 5 },
+  { name: 'Marcus Tecarro',    role: 'Estate Planning Attorney',  company: 'Polaris Estate Planning and Elder Law',  fun_facts: 'Quality Assurance on membership committee, thinks about worst-case scenarios for a living, very thorough', display_order: 6 },
+  { name: 'Mitch Slattery',    role: 'Financial Advisor',         company: 'Edward Jones',                           fun_facts: 'Talks about retirement planning at lunch, always has market updates, very calm under pressure', display_order: 7 },
+  { name: 'Patrick Driscoll',  role: 'Web Developer',             company: 'Webtek',                                 fun_facts: 'Built this game, always has a side project, probably debugging something right now', display_order: 8 },
+  { name: 'Paul Turin',        role: 'Residential Mortgages',     company: 'Guild Mortgage',                         fun_facts: 'Education Coordinator, can calculate your monthly payment in his sleep, knows interest rates by heart', display_order: 9 },
+  { name: 'Sean Freihaut',     role: 'Property & Casualty Insurance', company: 'Weiss Insurance Agency',             fun_facts: 'Visitor Host, protects everyone from disaster, always thinking about what could go wrong', display_order: 10 },
+  { name: 'Susan Cherkiss',    role: 'Flooring',                  company: 'Advance Carpet One',                     fun_facts: 'Visitor Host, knows every type of flooring material, can spot a bad install from across the room', display_order: 11 },
+  { name: 'Tad Flowers',       role: 'Business Coach',            company: 'FocalPoint Coaching',                    fun_facts: 'Member Engagement, asks deep questions, always has a framework for everything, very motivational', display_order: 12 },
+  { name: 'Terry Fingerhut',   role: 'Health & Wellness Products', company: 'Shaklee',                               fun_facts: 'Mentor Coordinator, passionate about nutrition, always has a health tip, very energetic', display_order: 13 },
 ]
 
 async function main() {
-  console.log('🔥 Seeding Firestore for B&I Family Feud\n')
+  console.log('🔥 Seeding Firestore — Think Big St. Louis Chapter\n')
 
-  // 1. Seed members
-  console.log('  Adding members...')
-  for (const member of members) {
-    const ref = db.collection('members').doc()
-    await ref.set(member)
-    console.log(`    ✅ ${member.name} (${member.role})`)
+  // Clear existing members
+  const existingMembers = await db.collection('members').get()
+  if (!existingMembers.empty) {
+    console.log(`  Clearing ${existingMembers.size} existing members...`)
+    const batch = db.batch()
+    existingMembers.docs.forEach(doc => batch.delete(doc.ref))
+    await batch.commit()
   }
 
-  // 2. Initialize game_state/current
+  // Seed members
+  console.log('  Adding 13 members...')
+  for (const member of members) {
+    await db.collection('members').doc().set(member)
+    console.log(`    ✅ ${member.name} — ${member.role} (${member.company})`)
+  }
+
+  // Initialize game state
   console.log('\n  Setting up game state...')
   await db.collection('game_state').doc('current').set({
     active_question_id: null,
@@ -64,13 +66,9 @@ async function main() {
   })
   console.log('    ✅ game_state/current initialized')
 
-  console.log('\n✨ Firestore seeded! You can now run the question generator.')
-  console.log('   npx ts-node --project tsconfig.scripts.json scripts/generate-questions.ts\n')
-
+  console.log('\n✨ Done! Think Big St. Louis is loaded.')
+  console.log('   Next: npx ts-node --project tsconfig.scripts.json scripts/generate-questions.ts\n')
   process.exit(0)
 }
 
-main().catch(err => {
-  console.error('❌ Error:', err)
-  process.exit(1)
-})
+main().catch(err => { console.error('❌', err); process.exit(1) })
