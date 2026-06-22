@@ -1,6 +1,16 @@
 'use client'
 import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
+import { db } from '@/lib/firebase'
+import {
+  doc,
+  collection,
+  onSnapshot,
+  getDocs,
+  query,
+  orderBy,
+  where,
+  limit,
+} from 'firebase/firestore'
 
 interface Answer { id: string; answer_text: string; points: number; display_order: number; is_revealed: boolean }
 interface ActiveQuestion { id: string; question_text: string; member_name: string; member_role: string }
@@ -18,78 +28,66 @@ export default function BoardPage() {
   const [roundPoints, setRoundPoints] = useState(0)
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
 
-  const loadAnswers = async (questionId: string) => {
-    const { data } = await supabase
-      .from('question_answers')
-      .select('*')
-      .eq('question_id', questionId)
-      .order('display_order')
-    if (data) {
-      setAnswers(data)
-      setRoundPoints(data.filter(a => a.is_revealed).reduce((sum, a) => sum + a.points, 0))
-    }
-  }
-
-  const loadPlayers = async () => {
-    const { data } = await supabase
-      .from('players')
-      .select('display_name, total_score')
-      .order('total_score', { ascending: false })
-      .limit(10)
-    setPlayers(data || [])
-    const { count } = await supabase.from('players').select('*', { count: 'exact', head: true })
-    setPlayerCount(count || 0)
-  }
-
   useEffect(() => {
-    loadPlayers()
+    // Listen to players
+    const unsubPlayers = onSnapshot(collection(db, 'players'), (snap) => {
+      const allPlayers = snap.docs.map(d => d.data() as Player)
+      allPlayers.sort((a, b) => b.total_score - a.total_score)
+      setPlayers(allPlayers.slice(0, 10))
+      setPlayerCount(snap.size)
+    })
 
-    const channel = supabase
-      .channel('board-realtime')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_state' }, async payload => {
-        const gs = payload.new
-        setStrikes(gs.strikes || 0)
+    // Listen to game state
+    const unsubGameState = onSnapshot(doc(db, 'game_state', 'current'), async (snap) => {
+      const data = snap.data()
+      if (!data) return
 
-        if (gs.game_phase === 'playing' && gs.active_question_id) {
-          // Load question details
-          const { data: q } = await supabase
-            .from('questions')
-            .select('*, members(name, role)')
-            .eq('id', gs.active_question_id)
-            .single()
+      setStrikes(data.strikes || 0)
 
-          if (q) {
-            setActiveQuestion({
-              id: q.id,
-              question_text: q.question_text,
-              member_name: q.members?.name || '',
-              member_role: q.members?.role || '',
-            })
-            await loadAnswers(gs.active_question_id)
-            setView('game')
-          }
-        } else {
-          setView('registration')
-          setActiveQuestion(null)
-          setAnswers([])
-        }
-      })
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'question_answers' }, payload => {
-        setAnswers(prev => prev.map(a => a.id === payload.new.id ? { ...a, ...payload.new } : a))
-        setRoundPoints(prev => {
-          if (payload.new.is_revealed && !payload.old.is_revealed) {
-            return prev + (payload.new.points || 0)
-          }
-          return prev
+      if (data.game_phase === 'playing' && data.active_question_id) {
+        setActiveQuestion({
+          id: data.active_question_id,
+          question_text: data.question_text || '',
+          member_name: data.member_name || '',
+          member_role: data.member_role || '',
         })
-      })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'players' }, () => {
-        loadPlayers()
-      })
-      .subscribe()
+        setView('game')
+      } else if (data.game_phase === 'leaderboard') {
+        setView('leaderboard')
+        setActiveQuestion(null)
+        setAnswers([])
+      } else {
+        setView('registration')
+        setActiveQuestion(null)
+        setAnswers([])
+      }
+    })
 
-    return () => { supabase.removeChannel(channel) }
+    return () => {
+      unsubPlayers()
+      unsubGameState()
+    }
   }, [])
+
+  // Listen to answers when we have an active question
+  useEffect(() => {
+    if (!activeQuestion?.id) {
+      setAnswers([])
+      setRoundPoints(0)
+      return
+    }
+
+    const unsubAnswers = onSnapshot(
+      query(collection(db, 'questions', activeQuestion.id, 'answers'), orderBy('display_order')),
+      (snap) => {
+        const ans = snap.docs.map(d => ({ id: d.id, ...d.data() } as Answer))
+        setAnswers(ans)
+        setRoundPoints(ans.filter(a => a.is_revealed).reduce((sum, a) => sum + a.points, 0))
+      }
+    )
+
+    return () => unsubAnswers()
+  }, [activeQuestion?.id])
 
   // ── Registration / waiting screen ────────────────────────────────────────
   if (view === 'registration') return (
@@ -103,7 +101,7 @@ export default function BoardPage() {
       <div className="bg-white/10 rounded-3xl p-8 text-center mb-8 w-full max-w-md">
         <p className="text-white/60 text-lg mb-2">Register to play — scan or visit</p>
         <p className="text-yellow-400 text-3xl font-bold mb-4">{appUrl}/play</p>
-        <div className="text-white/40 text-sm">Or text your name to your Twilio number</div>
+        <div className="text-white/40 text-sm">Or text your name to {process.env.NEXT_PUBLIC_TWILIO_PHONE || 'our game number'}</div>
       </div>
 
       <div className="text-center">

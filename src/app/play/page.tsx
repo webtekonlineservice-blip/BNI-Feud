@@ -1,6 +1,7 @@
 'use client'
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
+import { db } from '@/lib/firebase'
+import { doc, onSnapshot } from 'firebase/firestore'
 
 type Screen = 'register' | 'waiting' | 'answer' | 'submitted' | 'results'
 
@@ -25,36 +26,24 @@ export default function PlayPage() {
 
   // Watch game state for active questions
   useEffect(() => {
-    const checkGameState = async () => {
-      const { data } = await supabase
-        .from('game_state')
-        .select('*, questions(question_text, members(name))')
-        .eq('id', 1)
-        .single()
+    const unsubscribe = onSnapshot(doc(db, 'game_state', 'current'), (snap) => {
+      const data = snap.data()
+      if (!data) return
 
-      if (data?.game_phase === 'playing' && data?.active_question_id) {
+      if (data.game_phase === 'playing' && data.active_question_id) {
         setActiveQuestion({
           id: data.active_question_id,
-          question_text: data.questions?.question_text || '',
-          member_name: data.questions?.members?.name || '',
+          question_text: data.question_text || '',
+          member_name: data.member_name || '',
         })
         if (playerId) setScreen('answer')
       } else {
         setActiveQuestion(null)
         if (playerId) setScreen('waiting')
       }
-    }
+    })
 
-    checkGameState()
-
-    const channel = supabase
-      .channel('play-game-state')
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'game_state' }, () => {
-        checkGameState()
-      })
-      .subscribe()
-
-    return () => { supabase.removeChannel(channel) }
+    return () => unsubscribe()
   }, [playerId])
 
   const register = async () => {

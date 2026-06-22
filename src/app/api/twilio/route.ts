@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       })
       .join('\n') || 'No scores yet'
 
-    twiml.message(`\u{1F3C6} Top 5:\n${board}`)
+    twiml.message(`🏆 Top 5:\n${board}`)
     return twimlResponse(twiml)
   }
 
@@ -71,7 +71,7 @@ export async function POST(req: NextRequest) {
       await adminDb.collection('players').add(newPlayer)
 
       twiml.message(
-        `Welcome ${displayName}! \u{1F389} You're registered for B&I Family Feud.\n\nWatch the screen for questions and text your answer when a round opens.\n\nGood luck — lunch is on the line! \u{1F3C6}`
+        `Welcome ${displayName}! 🎉 You're registered for B&I Family Feud.\n\nWatch the screen for questions and text your answer when a round opens.\n\nGood luck — lunch is on the line! 🏆`
       )
     } catch {
       twiml.message('Something went wrong registering you. Try again!')
@@ -88,11 +88,11 @@ export async function POST(req: NextRequest) {
   }
 
   // ── 6. ANSWER — check if a question is active ────────────────────────────
-  const gameStateDoc = await adminDb.collection('game_state').doc('singleton').get()
+  const gameStateDoc = await adminDb.collection('game_state').doc('current').get()
   const gameState = gameStateDoc.data()
 
   if (!gameState?.active_question_id || gameState.game_phase !== 'playing') {
-    twiml.message(`Hey ${player.display_name}! No question is open right now. Watch the screen! \u{1F440}`)
+    twiml.message(`Hey ${player.display_name}! No question is open right now. Watch the screen! 👀`)
     return twimlResponse(twiml)
   }
 
@@ -100,21 +100,22 @@ export async function POST(req: NextRequest) {
 
   // ── 7. Check if player already answered this round ───────────────────────
   const existingSnap = await adminDb
-    .collection('player_responses')
+    .collection('responses')
     .where('player_id', '==', player.id)
     .where('question_id', '==', questionId)
     .limit(1)
     .get()
 
   if (!existingSnap.empty) {
-    twiml.message(`${player.display_name}, you already answered this round! Wait for the next question. \u{1F604}`)
+    twiml.message(`${player.display_name}, you already answered this round! Wait for the next question. 😄`)
     return twimlResponse(twiml)
   }
 
   // ── 8. Load board answers and fuzzy match ────────────────────────────────
   const answersSnap = await adminDb
-    .collection('question_answers')
-    .where('question_id', '==', questionId)
+    .collection('questions')
+    .doc(questionId)
+    .collection('answers')
     .orderBy('display_order')
     .get()
 
@@ -123,28 +124,34 @@ export async function POST(req: NextRequest) {
   const matched = matchAnswer(rawMessage, boardAnswers)
 
   // ── 9. Save the response ─────────────────────────────────────────────────
-  await adminDb.collection('player_responses').add({
+  await adminDb.collection('responses').add({
     player_id: player.id,
     question_id: questionId,
     raw_answer: rawMessage,
     matched_answer: matched?.answer_text || null,
     points_earned: matched?.points || 0,
+    display_name: player.display_name,
     received_at: new Date().toISOString(),
   })
 
   // ── 10. If matched, reveal the answer on the board + update score ─────────
   if (matched) {
-    await adminDb.collection('question_answers').doc(matched.id).update({ is_revealed: true })
+    await adminDb
+      .collection('questions')
+      .doc(questionId)
+      .collection('answers')
+      .doc(matched.id)
+      .update({ is_revealed: true })
 
     const newScore = player.total_score + matched.points
     await adminDb.collection('players').doc(player.id).update({ total_score: newScore })
 
     twiml.message(
-      `\u{1F525} MATCH! "${matched.answer_text}" — #${matched.display_order} answer!\n+${matched.points} pts\nYour total: ${newScore} pts`
+      `🔥 MATCH! "${matched.answer_text}" — #${matched.display_order} answer!\n+${matched.points} pts\nYour total: ${newScore} pts`
     )
   } else {
     twiml.message(
-      `\u{274C} "${rawMessage}" is not on the board, ${player.display_name}!\nKeep going — next question coming up!`
+      `❌ "${rawMessage}" is not on the board, ${player.display_name}!\nKeep going — next question coming up!`
     )
   }
 

@@ -1,0 +1,42 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Game state — anyone can read, only server (admin SDK) can write
+    match /game_state/{docId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Members — public read, server-only write
+    match /members/{memberId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Questions — public read, server-only write
+    match /questions/{questionId} {
+      allow read: if true;
+      allow write: if false;
+
+      // Answers subcollection
+      match /answers/{answerId} {
+        allow read: if true;
+        allow write: if false;
+      }
+    }
+
+    // Players — public read, server-only write
+    match /players/{playerId} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // Responses — public read, server-only write
+    match /responses/{responseId} {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
