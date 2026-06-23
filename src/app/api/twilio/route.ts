@@ -73,7 +73,7 @@ export async function POST(req: NextRequest) {
       await adminDb.collection('players').add(newPlayer)
 
       twiml.message(
-        `Welcome ${displayName}! 🎉 You're registered for B&I Family Feud.\n\nWatch the screen for questions and text your answer when a round opens.\n\nGood luck — lunch is on the line! 🏆`
+        `Welcome ${displayName}! 🎉 You're in BNI Family Feud!\n\nHOW TO PLAY:\n1. Watch the big screen for each question\n2. Text your answer to this number\n3. If it matches the board, you score points!\n\nYou get ONE guess per round. Top scorer wins lunch! 🏆\n\nText HELP anytime for info.\nText SCORE to see leaderboard.`
       )
     } catch {
       twiml.message('Something went wrong registering you. Try again!')
