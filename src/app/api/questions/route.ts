@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebaseAdmin'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/questions — all questions with member + answers
 export async function GET() {
   const questionsSnap = await adminDb

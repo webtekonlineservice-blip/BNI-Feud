@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebaseAdmin'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/leaderboard — players + their responses for results view
 export async function GET() {
   const playersSnap = await adminDb

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebaseAdmin'
 import { matchAnswer } from '@/lib/matchAnswer'
 
+export const dynamic = 'force-dynamic'
+
 // POST /api/players/answer — web form answer submission
 export async function POST(req: NextRequest) {
   const { player_id, question_id, raw_answer } = await req.json()

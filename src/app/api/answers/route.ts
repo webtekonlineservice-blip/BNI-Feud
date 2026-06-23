@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebaseAdmin'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/answers — get game state
 export async function GET() {
   const doc = await adminDb.collection('game_state').doc('singleton').get()

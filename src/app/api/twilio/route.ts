@@ -3,6 +3,8 @@ import twilio from 'twilio'
 import { adminDb } from '@/lib/firebaseAdmin'
 import { matchAnswer } from '@/lib/matchAnswer'
 
+export const dynamic = 'force-dynamic'
+
 const MessagingResponse = twilio.twiml.MessagingResponse
 
 /**

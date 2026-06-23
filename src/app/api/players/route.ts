@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebaseAdmin'
 
+export const dynamic = 'force-dynamic'
+
 // GET /api/players — all registered players sorted by score
 export async function GET() {
   const snapshot = await adminDb
