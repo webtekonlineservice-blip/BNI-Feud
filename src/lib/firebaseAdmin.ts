@@ -1,26 +1,41 @@
-import { initializeApp, getApps, cert, App } from 'firebase-admin/app'
+import { initializeApp, getApps, cert } from 'firebase-admin/app'
 import { getFirestore, Firestore } from 'firebase-admin/firestore'
 
-function initAdmin(): App | null {
-  if (getApps().length) return getApps()[0]
+let _db: Firestore | null = null
 
-  const projectId = process.env.FIREBASE_PROJECT_ID
-  const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
-  const privateKey = process.env.FIREBASE_PRIVATE_KEY
+export function getAdminDb(): Firestore {
+  if (_db) return _db
 
-  if (!projectId || !clientEmail || !privateKey) {
-    console.warn('Firebase Admin: missing credentials, skipping initialization')
-    return null
+  if (!getApps().length) {
+    const projectId = process.env.FIREBASE_PROJECT_ID
+    const clientEmail = process.env.FIREBASE_CLIENT_EMAIL
+    const privateKey = process.env.FIREBASE_PRIVATE_KEY
+
+    if (!projectId || !clientEmail || !privateKey) {
+      throw new Error('Firebase Admin credentials not configured')
+    }
+
+    initializeApp({
+      credential: cert({
+        projectId,
+        clientEmail,
+        privateKey: privateKey.replace(/\\n/g, '\n'),
+      }),
+    })
   }
 
-  return initializeApp({
-    credential: cert({
-      projectId,
-      clientEmail,
-      privateKey: privateKey.replace(/\\n/g, '\n'),
-    }),
-  })
+  _db = getFirestore()
+  return _db
 }
 
-const app = initAdmin()
-export const adminDb: Firestore = getFirestore(app!)
+// Keep backward compat — but as a getter so it's lazy
+export const adminDb = new Proxy({} as Firestore, {
+  get(_, prop) {
+    const db = getAdminDb()
+    const value = (db as any)[prop]
+    if (typeof value === 'function') {
+      return value.bind(db)
+    }
+    return value
+  },
+})
