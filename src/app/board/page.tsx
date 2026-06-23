@@ -79,26 +79,50 @@ export default function BoardPage() {
   // ── Registration screen ──────────────────────────────────────────────────
   if (view === 'registration') return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-8">
-      <div className="text-center mb-8">
+      <div className="text-center mb-6">
         <h1 className="text-5xl font-black mb-2">
           <span className="text-bni-red">BNI</span> Family Feud
         </h1>
-        <p className="text-gray-500 text-xl">Scan to join the game!</p>
+        <p className="text-gray-500 text-lg">Think Big St. Louis</p>
       </div>
 
       <div className="mb-6">
         <Image
           src="/img/TB-QR.png"
           alt="Scan to register"
-          width={280}
-          height={280}
+          width={240}
+          height={240}
           className="rounded-xl shadow-lg"
           priority
         />
       </div>
 
-      <div className="text-center mb-8">
-        <p className="text-gray-500 text-sm">Scan the QR code to register</p>
+      <div className="text-center mb-6">
+        <p className="text-black font-bold text-lg">Scan to join the game!</p>
+      </div>
+
+      {/* Instructions */}
+      <div className="w-full max-w-md bg-gray-50 border border-gray-200 rounded-xl p-5 mb-6">
+        <h3 className="font-bold text-sm uppercase text-gray-500 mb-3">How to Play</h3>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-3 items-start">
+            <span className="bg-bni-red text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">1</span>
+            <span>Scan the QR code and register with your name + phone</span>
+          </div>
+          <div className="flex gap-3 items-start">
+            <span className="bg-bni-red text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">2</span>
+            <span>Watch this screen for each question</span>
+          </div>
+          <div className="flex gap-3 items-start">
+            <span className="bg-bni-red text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">3</span>
+            <span>Text your answer to the game number</span>
+          </div>
+          <div className="flex gap-3 items-start">
+            <span className="bg-bni-red text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0">4</span>
+            <span>If it matches the board — you score points!</span>
+          </div>
+        </div>
+        <p className="text-xs text-gray-400 mt-3">One guess per round. Top scorer wins lunch!</p>
       </div>
 
       <div className="text-center">
