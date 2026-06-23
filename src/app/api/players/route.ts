@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { adminDb } from '@/lib/firebaseAdmin'
+import twilio from 'twilio'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,6 +55,17 @@ export async function POST(req: NextRequest) {
     }
 
     const docRef = await adminDb.collection('players').add(newPlayer)
+
+    // Send confirmation SMS
+    try {
+      const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_TOKEN!)
+      await client.messages.create({
+        body: `Welcome ${display_name}! 🎉 You're in BNI Family Feud!\n\nHOW TO PLAY:\n1. Watch the big screen for each question\n2. Text your answer to this number\n3. If it matches the board, you score points!\n\nYou get ONE guess per round. Top scorer wins lunch! 🏆`,
+        from: process.env.TWILIO_PHONE_NUMBER!,
+        to: e164,
+      })
+    } catch {}
+
     return NextResponse.json({ id: docRef.id, ...newPlayer })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
