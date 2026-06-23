@@ -24,7 +24,6 @@ export default function PlayPage() {
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
 
-  // Watch game state for active questions
   useEffect(() => {
     const unsubscribe = onSnapshot(doc(db, 'game_state', 'current'), (snap) => {
       const data = snap.data()
@@ -86,77 +85,73 @@ export default function PlayPage() {
     setSubmitting(false)
   }
 
-  // ── Screens ───────────────────────────────────────────────────────────────
-
+  // ── Register ──────────────────────────────────────────────────────────────
   if (screen === 'register') return (
-    <div className="min-h-screen bg-[#0f0f3d] flex flex-col items-center justify-center p-6">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="text-5xl mb-3">⭐</div>
-          <h1 className="text-3xl font-bold text-yellow-400">B&I Family Feud</h1>
-          <p className="text-white/60 mt-2">Register to play — lunch is on the line!</p>
+          <h1 className="text-3xl font-black"><span className="text-bni-red">BNI</span> Family Feud</h1>
+          <p className="text-gray-500 mt-2">Register to play — lunch is on the line!</p>
         </div>
 
         <div className="space-y-4">
           <div>
-            <label className="text-white/60 text-sm block mb-1">Your name</label>
+            <label className="text-gray-600 text-sm block mb-1">Your name</label>
             <input
               type="text"
               value={name}
               onChange={e => setName(e.target.value)}
               placeholder="First name or full name"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-yellow-400"
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-black placeholder-gray-400 focus:outline-none focus:border-bni-red"
             />
           </div>
           <div>
-            <label className="text-white/60 text-sm block mb-1">Your phone number</label>
+            <label className="text-gray-600 text-sm block mb-1">Your phone number</label>
             <input
               type="tel"
               value={phone}
               onChange={e => setPhone(e.target.value)}
               placeholder="(314) 555-1234"
-              className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-yellow-400"
+              className="w-full border-2 border-gray-200 rounded-xl px-4 py-3 text-black placeholder-gray-400 focus:outline-none focus:border-bni-red"
             />
           </div>
 
-          {error && <p className="text-red-400 text-sm">{error}</p>}
+          {error && <p className="text-bni-red text-sm">{error}</p>}
 
           <button
             onClick={register}
-            className="w-full bg-yellow-400 text-[#0f0f3d] font-bold py-4 rounded-xl text-lg"
+            className="w-full bg-bni-red hover:bg-bni-red-dark text-white font-bold py-4 rounded-xl text-lg transition"
           >
-            Join the Game →
+            Join the Game
           </button>
-
-          <p className="text-white/30 text-xs text-center">
-            You can also register by texting your name to {process.env.NEXT_PUBLIC_TWILIO_PHONE || 'our game number'}
-          </p>
         </div>
       </div>
     </div>
   )
 
+  // ── Waiting ───────────────────────────────────────────────────────────────
   if (screen === 'waiting') return (
-    <div className="min-h-screen bg-[#0f0f3d] flex flex-col items-center justify-center p-6 text-center">
-      <div className="text-5xl mb-4 animate-bounce">👀</div>
-      <h2 className="text-2xl font-bold text-yellow-400 mb-2">You're in, {playerName}!</h2>
-      <p className="text-white/60 mb-6">Watch the screen — a question will open soon.</p>
-      <div className="bg-white/10 rounded-xl px-6 py-3">
-        <span className="text-white/50 text-sm">Your score: </span>
-        <span className="text-yellow-400 font-bold text-xl">{playerScore} pts</span>
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6 text-center">
+      <div className="text-5xl mb-4">👀</div>
+      <h2 className="text-2xl font-bold mb-2">You&apos;re in, {playerName}!</h2>
+      <p className="text-gray-500 mb-6">Watch the screen — a question will open soon.</p>
+      <div className="bg-gray-50 border border-gray-200 rounded-xl px-6 py-3">
+        <span className="text-gray-500 text-sm">Your score: </span>
+        <span className="text-bni-red font-bold text-xl">{playerScore} pts</span>
       </div>
-      <p className="text-white/30 text-xs mt-8">This page will update automatically when a round opens</p>
+      <p className="text-gray-400 text-xs mt-8">This page will update automatically when a round opens</p>
     </div>
   )
 
+  // ── Answer ────────────────────────────────────────────────────────────────
   if (screen === 'answer') return (
-    <div className="min-h-screen bg-[#0f0f3d] flex flex-col p-6">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col p-6">
       <div className="text-center mb-6">
-        <div className="text-sm text-white/50 uppercase tracking-wide mb-1">Question about</div>
-        <div className="text-yellow-400 font-bold text-lg">{activeQuestion?.member_name}</div>
+        <div className="text-sm text-gray-500 uppercase tracking-wide mb-1">Question about</div>
+        <div className="text-bni-red font-bold text-lg">{activeQuestion?.member_name}</div>
       </div>
 
-      <div className="bg-[#1a1a6e] rounded-2xl p-5 mb-6 flex-1 flex items-center justify-center">
+      <div className="bg-bni-red rounded-2xl p-5 mb-6 flex-1 flex items-center justify-center">
         <p className="text-white text-xl font-medium text-center leading-relaxed">
           {activeQuestion?.question_text}
         </p>
@@ -170,38 +165,39 @@ export default function PlayPage() {
           onKeyDown={e => e.key === 'Enter' && submitAnswer()}
           placeholder="Type your answer..."
           autoFocus
-          className="w-full bg-white/10 border border-white/20 rounded-xl px-4 py-4 text-white text-lg placeholder-white/30 focus:outline-none focus:border-yellow-400"
+          className="w-full border-2 border-gray-200 rounded-xl px-4 py-4 text-black text-lg placeholder-gray-400 focus:outline-none focus:border-bni-red"
         />
         <button
           onClick={submitAnswer}
           disabled={submitting || !answer.trim()}
-          className="w-full bg-yellow-400 disabled:opacity-50 text-[#0f0f3d] font-bold py-4 rounded-xl text-lg"
+          className="w-full bg-bni-red disabled:opacity-50 hover:bg-bni-red-dark text-white font-bold py-4 rounded-xl text-lg transition"
         >
-          {submitting ? 'Sending...' : 'Submit Answer →'}
+          {submitting ? 'Sending...' : 'Submit Answer'}
         </button>
-        <p className="text-white/30 text-xs text-center">Score: {playerScore} pts</p>
+        <p className="text-gray-400 text-xs text-center">Score: {playerScore} pts</p>
       </div>
     </div>
   )
 
+  // ── Submitted ─────────────────────────────────────────────────────────────
   if (screen === 'submitted') return (
-    <div className="min-h-screen bg-[#0f0f3d] flex flex-col items-center justify-center p-6 text-center">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6 text-center">
       {lastResult?.matched ? (
         <>
           <div className="text-6xl mb-4">🔥</div>
-          <h2 className="text-3xl font-bold text-green-400 mb-2">Match!</h2>
-          <p className="text-white/70 mb-2">"{lastResult.answer}"</p>
-          <p className="text-yellow-400 text-4xl font-bold mb-1">+{lastResult.points}</p>
-          <p className="text-white/50 text-sm mb-6">Total: {playerScore} pts</p>
+          <h2 className="text-3xl font-bold text-green-600 mb-2">Match!</h2>
+          <p className="text-gray-600 mb-2">&quot;{lastResult.answer}&quot;</p>
+          <p className="text-bni-red text-4xl font-black mb-1">+{lastResult.points}</p>
+          <p className="text-gray-500 text-sm mb-6">Total: {playerScore} pts</p>
         </>
       ) : (
         <>
           <div className="text-6xl mb-4">❌</div>
-          <h2 className="text-3xl font-bold text-red-400 mb-2">Not on the board!</h2>
-          <p className="text-white/50 mb-6">Nice try — watch for the next question</p>
+          <h2 className="text-3xl font-bold text-bni-red mb-2">Not on the board!</h2>
+          <p className="text-gray-500 mb-6">Nice try — watch for the next question</p>
         </>
       )}
-      <button onClick={() => setScreen('waiting')} className="bg-white/10 text-white px-8 py-3 rounded-xl">
+      <button onClick={() => setScreen('waiting')} className="bg-gray-100 border border-gray-200 text-black px-8 py-3 rounded-xl hover:bg-gray-200 transition">
         Back to waiting room
       </button>
     </div>
