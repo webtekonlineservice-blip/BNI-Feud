@@ -26,21 +26,24 @@ export default function HostPage() {
   const loadQuestions = useCallback(async () => {
     try {
       const res = await fetch('/api/questions')
-      setQuestions(await res.json())
+      const data = await res.json()
+      setQuestions(Array.isArray(data) ? data : [])
     } catch (e) { console.error('Failed to load questions:', e) }
   }, [])
 
   const loadPlayers = useCallback(async () => {
     try {
       const res = await fetch('/api/players')
-      setPlayers(await res.json())
+      const data = await res.json()
+      setPlayers(Array.isArray(data) ? data : [])
     } catch (e) { console.error('Failed to load players:', e) }
   }, [])
 
   const loadResponses = useCallback(async (questionId: string) => {
     try {
       const res = await fetch(`/api/answers?question_id=${questionId}`)
-      setResponses(await res.json())
+      const data = await res.json()
+      setResponses(Array.isArray(data) ? data : [])
     } catch (e) { console.error('Failed to load responses:', e) }
   }, [])
 
