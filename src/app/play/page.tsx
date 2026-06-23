@@ -132,14 +132,22 @@ export default function PlayPage() {
   // ── Waiting ───────────────────────────────────────────────────────────────
   if (screen === 'waiting') return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6 text-center">
-      <div className="text-5xl mb-4">👀</div>
+      <div className="text-5xl mb-4">✅</div>
       <h2 className="text-2xl font-bold mb-2">You&apos;re in, {playerName}!</h2>
-      <p className="text-gray-500 mb-6">Watch the screen — a question will open soon.</p>
+      <p className="text-gray-500 mb-6">Watch the big screen for questions.</p>
+
+      <div className="bg-gray-50 border-2 border-gray-200 rounded-xl p-5 w-full max-w-sm mb-6">
+        <p className="text-sm text-gray-500 uppercase font-medium mb-2">To answer, text to:</p>
+        <a href={`sms:${process.env.NEXT_PUBLIC_TWILIO_PHONE || '+16366892103'}`} className="text-bni-red text-3xl font-black block mb-2">
+          {process.env.NEXT_PUBLIC_TWILIO_PHONE || '+16366892103'}
+        </a>
+        <p className="text-gray-400 text-xs">Just text your answer when a question is open</p>
+      </div>
+
       <div className="bg-gray-50 border border-gray-200 rounded-xl px-6 py-3">
         <span className="text-gray-500 text-sm">Your score: </span>
         <span className="text-bni-red font-bold text-xl">{playerScore} pts</span>
       </div>
-      <p className="text-gray-400 text-xs mt-8">This page will update automatically when a round opens</p>
     </div>
   )
 

@@ -1,4 +1,4 @@
-# BNI Family Feud — App Flow
+# BNI Family Feud — Game Flow
 
 ## Live URL
 https://bni-feud.vercel.app
@@ -8,202 +8,128 @@ Think Big St. Louis — Mike Duffy's Pub, Kirkwood MO — Thursdays 11:30 AM
 
 ---
 
-## Architecture
+## Pages
 
-```
-Player Phone → QR scan → /play (register form) → Firestore + confirmation SMS
-Player Phone → SMS → /api/twilio (webhook) → Firestore + reply SMS
-Host Laptop  → /host (control panel) → API routes → Firestore
-Projector    → /board (game display) → Firestore real-time listeners
-```
-
----
-
-## App Routes
-
-| Route | Purpose | Who sees it |
-|-------|---------|-------------|
-| `/` | Redirects to `/board` | — |
-| `/board` | Game display (QR registration → question → answers → leaderboard) | Projector/TV |
-| `/host` | Host control panel (activate rounds, reveal answers, strikes) | Host laptop/phone |
-| `/play` | Web registration form (name + phone) | Players via QR scan |
-| `/api/players` | GET all players / POST new registration | Internal |
-| `/api/players/answer` | POST player answer submission | Internal |
-| `/api/questions` | GET all questions / PATCH activate/complete | Internal |
-| `/api/answers` | GET responses / PATCH reveal answer | Internal |
-| `/api/twilio` | POST incoming SMS webhook from Twilio | Twilio |
+| URL | What it does | Who uses it |
+|-----|-------------|-------------|
+| `/` | Home — QR code + instructions + player count | Projector (before game) |
+| `/host` | Game controller — questions, answers, leaderboard | Host laptop (projector during game) |
+| `/play` | Registration form (name + phone) | Players via QR scan |
 
 ---
 
-## Registration Flow
+## The Game (10 min)
 
-### Via QR Code (primary)
-1. `/board` displays QR code pointing to `https://bni-feud.vercel.app/play`
-2. Player scans with phone camera → opens `/play` in browser
-3. Player enters name + phone number → submits form
-4. `POST /api/players` → creates player in Firestore
-5. Twilio sends confirmation SMS with game instructions
-6. Player sees "You're in!" waiting screen
+### Before: Reset
+```bash
+node scripts/clear-game.js
+```
+Clears all players, responses, resets questions. Fresh start.
 
-### Via SMS (fallback)
-1. Player texts their name to `+16366892103`
-2. Twilio hits `POST /api/twilio`
-3. Creates player in Firestore
-4. Replies with confirmation + instructions
+### Phase 1: Registration (1-2 min)
+1. Project `https://bni-feud.vercel.app` on TV
+2. Players scan QR code → opens `/play` → enter name + phone
+3. They get a confirmation SMS with instructions
+4. Player count updates live on the home page
+
+### Phase 2: Play (8 min)
+1. Host opens `/host` on their laptop → clicks **Start Game**
+2. Question 1 appears (about a specific member)
+3. Players text their answer to `+16366892103`
+4. Matches reveal on screen in real-time + player gets points
+5. One guess per player per question
+6. When ready, host clicks **Next Question →**
+7. Repeat for all 13 questions (or however many you have time for)
+
+### Phase 3: Leaderboard
+1. After the last question, host clicks **Show Leaderboard**
+2. Final scores display — #1 wins lunch!
 
 ---
 
-## Game Round Flow
+## How Answers Work
 
-### Host starts a round
-1. Host clicks member card on `/host`
-2. Modal opens showing question + answers + controls
-3. Host clicks **"Open Round"**
-4. `PATCH /api/questions` → sets question active, updates `game_state/current`
-
-### Board reacts (real-time)
-1. `/board` listens to `game_state/current` via Firestore `onSnapshot`
-2. Detects `game_phase: 'playing'` + `active_question_id`
-3. Switches to game view: shows question + hidden answer slots
-4. Listens to `questions/{id}/answers` subcollection for reveals
-
-### Players answer
-1. Player texts answer to `+16366892103`
-2. `POST /api/twilio` → checks game state → fuzzy matches answer
-3. If match: reveals answer in Firestore, updates player score, replies "MATCH! +X pts"
-4. If miss: replies "Not on the board!"
-5. One answer per player per round (enforced via `responses` collection)
-
-### Host reveals remaining answers
-1. Host taps hidden answers on `/host` modal
-2. `PATCH /api/answers` → sets `is_revealed: true` in Firestore subcollection
-3. `/board` updates in real-time via `onSnapshot`
-
-### Host ends the round
-1. Host clicks **"Mark Complete"**
-2. `PATCH /api/questions` → marks question complete, resets `game_state/current`
-3. `/board` returns to registration/waiting view
+- Player texts an answer
+- Fuzzy matching (Fuse.js) compares it to the 6 answers on the board
+- If close enough → match! Answer reveals, player scores those points
+- If no match → "Not on the board!" reply
+- Each player gets ONE guess per question
+- Points per answer: #1 ~35, #2 ~25, #3 ~18, #4 ~12, #5 ~7, #6 ~3 (total = 100)
 
 ---
 
-## Firestore Data Model
+## SMS Commands
 
-```
-game_state/current
-  ├── active_question_id: string | null
-  ├── game_phase: 'registration' | 'playing' | 'leaderboard'
-  ├── question_text: string
-  ├── member_name: string
-  ├── member_role: string
-  ├── strikes: number (0-3)
-  └── updated_at: timestamp
-
-members/{id}
-  ├── name: string
-  ├── role: string
-  ├── company: string
-  ├── fun_facts: string
-  └── display_order: number
-
-questions/{id}
-  ├── member_id: string (ref to members)
-  ├── question_text: string
-  ├── is_active: boolean
-  ├── is_complete: boolean
-  ├── display_order: number
-  └── answers/{id}  (subcollection)
-        ├── answer_text: string
-        ├── points: number
-        ├── display_order: number (1-6)
-        └── is_revealed: boolean
-
-players/{id}
-  ├── phone_number: string (E.164)
-  ├── display_name: string
-  ├── total_score: number
-  ├── registered_at: string
-  └── is_host: boolean
-
-responses/{id}
-  ├── player_id: string
-  ├── question_id: string
-  ├── raw_answer: string
-  ├── matched_answer: string | null
-  ├── points_earned: number
-  ├── display_name: string
-  └── received_at: string
-```
-
----
-
-## SMS Webhook Flow (`/api/twilio`)
-
-```
-Incoming text from player
-  │
-  ├─ Is "HELP" or "?" → Reply with instructions
-  ├─ Is "SCORE" → Reply with top 5 leaderboard
-  ├─ Player not registered → Register them, reply with welcome + instructions
-  ├─ Starts with "NAME:" → Update display name
-  ├─ No active question → Reply "No question open, watch the screen!"
-  ├─ Already answered this round → Reply "Already answered!"
-  └─ Otherwise → Match answer against board
-       ├─ Match found → Reveal answer, update score, reply "+X pts!"
-       └─ No match → Reply "Not on the board!"
-```
-
----
-
-## Answer Matching (`src/lib/matchAnswer.ts`)
-
-- Uses Fuse.js for fuzzy string matching
-- Compares player's raw answer against the 6 board answers
-- Threshold-based matching (close enough counts)
-- Only matches unrevealed answers
+| Text | What happens |
+|------|-------------|
+| First text (any name) | Registers the player |
+| Any answer | Submits during active round |
+| `SCORE` | Shows top 5 leaderboard |
+| `HELP` | Instructions |
+| `NAME: New Name` | Change display name |
 
 ---
 
 ## Scripts
 
-| Script | Purpose |
-|--------|---------|
-| `scripts/seed-firestore.ts` | Seed 13 Think Big members + init game state |
-| `scripts/generate-questions.ts` | Generate questions via DeepSeek AI |
-| `scripts/create-test-question.js` | Quick test question for debugging |
-| `scripts/check-db.js` | Verify Firestore data |
+| Command | What it does |
+|---------|-------------|
+| `node scripts/clear-game.js` | Reset everything for a fresh game |
+| `npx ts-node --project tsconfig.scripts.json scripts/seed-firestore.ts` | Seed the 13 members |
+| `npx ts-node --project tsconfig.scripts.json scripts/generate-questions.ts` | Generate questions via DeepSeek |
 
 ---
 
-## Deploy
+## Host Quick Reference
 
-- **Hosting**: Vercel (auto-deploys on push to `main`)
-- **Database**: Firebase Firestore
+```
+1. Run: node scripts/clear-game.js (fresh start)
+2. Project https://bni-feud.vercel.app on TV (QR + instructions)
+3. Wait for players to register (watch count go up)
+4. Open /host on your laptop
+5. Click "Start Game"
+6. Question shows → players text answers → matches reveal
+7. Click "Next Question" when ready
+8. After all questions → Leaderboard shows
+9. #1 wins lunch!
+```
+
+---
+
+## Tech Stack
+
+- **Frontend**: Next.js 14 on Vercel
+- **Database**: Firebase Firestore (real-time)
 - **SMS**: Twilio
-- **AI**: DeepSeek (question generation only)
+- **AI**: DeepSeek (question generation)
 - **Repo**: https://github.com/webtekonlineservice-blip/BNI-Feud
-
----
-
-## Twilio Webhook Setup
-
-Set in Twilio Console → Phone Numbers → `+16366892103` → Messaging:
-- **When a message comes in**: `https://bni-feud.vercel.app/api/twilio`
-- **HTTP Method**: POST
 
 ---
 
 ## Environment Variables (Vercel)
 
-| Variable | Purpose |
-|----------|---------|
-| `NEXT_PUBLIC_FIREBASE_*` | Client-side Firebase config (6 vars) |
-| `FIREBASE_PROJECT_ID` | Admin SDK |
-| `FIREBASE_CLIENT_EMAIL` | Admin SDK |
-| `FIREBASE_PRIVATE_KEY` | Admin SDK (multiline) |
-| `TWILIO_ACCOUNT_SID` | Twilio API |
-| `TWILIO_AUTH_TOKEN` | Twilio API |
-| `TWILIO_PHONE_NUMBER` | Outbound SMS from |
-| `NEXT_PUBLIC_TWILIO_PHONE` | Display number |
-| `NEXT_PUBLIC_APP_URL` | App base URL |
-| `HOST_PASSWORD` | Host panel access |
-| `DEEPSEEK_API_KEY` | Question generation |
+All set in Vercel project settings:
+- `NEXT_PUBLIC_FIREBASE_*` (6 client keys)
+- `FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`
+- `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`
+- `NEXT_PUBLIC_TWILIO_PHONE`, `NEXT_PUBLIC_APP_URL`
+- `HOST_PASSWORD`, `DEEPSEEK_API_KEY`
+
+---
+
+## Twilio Webhook
+
+Console → Phone Numbers → +16366892103 → Messaging:
+- URL: `https://bni-feud.vercel.app/api/twilio`
+- Method: POST
+
+---
+
+## Tips
+
+- Keep rounds short — 20-30 seconds per question
+- Read the question aloud with energy
+- React to matches as they reveal ("Ohhh! Someone got it!")
+- Don't wait for all 6 to reveal — move on when it slows down
+- You can skip questions (just click Next)
+- Have fun with it — the roast questions are meant to get laughs

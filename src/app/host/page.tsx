@@ -1,7 +1,7 @@
 'use client'
 import { useEffect, useState, useCallback } from 'react'
 import { db } from '@/lib/firebase'
-import { doc, collection, onSnapshot, query, orderBy } from 'firebase/firestore'
+import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 
 interface Answer { id: string; answer_text: string; points: number; display_order: number; is_revealed: boolean }
 interface Question { id: string; member_id: string; question_text: string; is_active: boolean; is_complete: boolean; members: any; question_answers: Answer[] }
@@ -19,7 +19,6 @@ export default function HostPage() {
   const [answers, setAnswers] = useState<Answer[]>([])
   const [loading, setLoading] = useState(true)
 
-  // Load questions from API
   const loadQuestions = useCallback(async () => {
     try {
       const res = await fetch('/api/questions')
@@ -28,21 +27,11 @@ export default function HostPage() {
     } catch {}
   }, [])
 
-  // Load players from API
   const loadPlayers = useCallback(async () => {
     try {
       const res = await fetch('/api/players')
       const data = await res.json()
       setPlayers(Array.isArray(data) ? data : [])
-    } catch {}
-  }, [])
-
-  // Load responses for current question
-  const loadResponses = useCallback(async (questionId: string) => {
-    try {
-      const res = await fetch(`/api/answers?question_id=${questionId}`)
-      const data = await res.json()
-      setResponses(Array.isArray(data) ? data : [])
     } catch {}
   }, [])
 
@@ -54,29 +43,37 @@ export default function HostPage() {
     init()
   }, [loadQuestions, loadPlayers])
 
-  // Listen to answers for the active question in real-time
   const currentQuestion = questions[currentIndex]
 
+  // Real-time listeners when playing
   useEffect(() => {
     if (!currentQuestion?.id || phase !== 'playing') return
 
     const unsubAnswers = onSnapshot(
       query(collection(db, 'questions', currentQuestion.id, 'answers'), orderBy('display_order')),
+      (snap) => setAnswers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Answer)))
+    )
+
+    const unsubResponses = onSnapshot(
+      collection(db, 'responses'),
       (snap) => {
-        setAnswers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Answer)))
+        const filtered = snap.docs
+          .map(d => ({ id: d.id, ...d.data() } as any))
+          .filter((r: any) => r.question_id === currentQuestion.id)
+        filtered.sort((a: any, b: any) => (b.received_at || '').localeCompare(a.received_at || ''))
+        setResponses(filtered)
       }
     )
 
-    // Poll responses every 2 seconds
-    const interval = setInterval(() => {
-      loadResponses(currentQuestion.id)
-      loadPlayers()
-    }, 2000)
+    const unsubPlayers = onSnapshot(collection(db, 'players'), (snap) => {
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as Player))
+      all.sort((a, b) => b.total_score - a.total_score)
+      setPlayers(all)
+    })
 
-    return () => { unsubAnswers(); clearInterval(interval) }
-  }, [currentQuestion?.id, phase, loadResponses, loadPlayers])
+    return () => { unsubAnswers(); unsubResponses(); unsubPlayers() }
+  }, [currentQuestion?.id, phase])
 
-  // Start the game
   const startGame = async () => {
     if (!questions.length) return
     setCurrentIndex(0)
@@ -86,12 +83,9 @@ export default function HostPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question_id: questions[0].id, action: 'activate' }),
     })
-    loadResponses(questions[0].id)
   }
 
-  // Next question
   const nextQuestion = async () => {
-    // Complete current
     await fetch('/api/questions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -100,13 +94,11 @@ export default function HostPage() {
 
     const nextIdx = currentIndex + 1
     if (nextIdx >= questions.length) {
-      // All done — show leaderboard
       setPhase('leaderboard')
       loadPlayers()
       return
     }
 
-    // Activate next
     setCurrentIndex(nextIdx)
     setResponses([])
     await fetch('/api/questions', {
@@ -114,10 +106,20 @@ export default function HostPage() {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ question_id: questions[nextIdx].id, action: 'activate' }),
     })
-    loadResponses(questions[nextIdx].id)
   }
 
-  // Reveal a specific answer manually
+  const prevQuestion = async () => {
+    if (currentIndex === 0) return
+    const prevIdx = currentIndex - 1
+    setCurrentIndex(prevIdx)
+    setResponses([])
+    await fetch('/api/questions', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question_id: questions[prevIdx].id, action: 'activate' }),
+    })
+  }
+
   const revealAnswer = async (answerId: string) => {
     await fetch('/api/answers', {
       method: 'PATCH',
@@ -137,7 +139,6 @@ export default function HostPage() {
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6">
       <h1 className="text-4xl font-black mb-2"><span className="text-bni-red">BNI</span> Family Feud</h1>
       <p className="text-gray-500 mb-8">{questions.length} questions ready · {players.length} players registered</p>
-
       <button
         onClick={startGame}
         disabled={!questions.length}
@@ -145,7 +146,6 @@ export default function HostPage() {
       >
         Start Game
       </button>
-
       {players.length > 0 && (
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500 mb-2">Players:</p>
@@ -181,12 +181,11 @@ export default function HostPage() {
   // ── PLAYING ───────────────────────────────────────────────────────────────
   const revealed = answers.filter(a => a.is_revealed).length
   const totalAnswers = answers.length
-  const roundPoints = answers.filter(a => a.is_revealed).reduce((sum, a) => sum + a.points, 0)
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col p-4">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col p-4 relative">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-sm text-gray-500">Question {currentIndex + 1} of {questions.length}</p>
           <p className="text-bni-red font-bold">{currentQuestion?.members?.name} — {currentQuestion?.members?.role}</p>
@@ -226,7 +225,7 @@ export default function HostPage() {
       </div>
 
       {/* Live responses feed */}
-      <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-3 mb-4 overflow-y-auto max-h-48">
+      <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-3 mb-16 overflow-y-auto max-h-48">
         <div className="flex justify-between items-center mb-2">
           <span className="text-xs text-gray-500 uppercase font-medium">Live Answers</span>
           <span className="text-xs text-gray-400">{responses.length} submitted</span>
@@ -246,13 +245,20 @@ export default function HostPage() {
         </div>
       </div>
 
-      {/* Controls */}
-      <div className="flex gap-3">
+      {/* Fixed bottom corners: Prev / Next */}
+      <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between bg-white border-t border-gray-200">
+        <button
+          onClick={prevQuestion}
+          disabled={currentIndex === 0}
+          className="px-6 py-3 bg-gray-100 hover:bg-gray-200 border border-gray-300 text-black font-bold rounded-xl transition disabled:opacity-30"
+        >
+          ← Previous
+        </button>
         <button
           onClick={nextQuestion}
-          className="flex-1 bg-bni-red hover:bg-bni-red-dark text-white font-bold py-3 rounded-xl transition"
+          className="px-6 py-3 bg-bni-red hover:bg-bni-red-dark text-white font-bold rounded-xl transition"
         >
-          {currentIndex + 1 >= questions.length ? 'Show Leaderboard' : 'Next Question →'}
+          {currentIndex + 1 >= questions.length ? 'Leaderboard →' : 'Next →'}
         </button>
       </div>
     </div>
