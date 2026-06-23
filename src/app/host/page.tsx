@@ -196,6 +196,33 @@ export default function HostPage() {
         </div>
       </div>
 
+      {/* Scrolling leaderboard ticker */}
+      {players.length > 0 && (
+        <div className="overflow-hidden mb-3 bg-gray-50 border border-gray-200 rounded-lg py-2">
+          <div className="animate-scroll flex whitespace-nowrap gap-8 px-4">
+            {players.slice(0, 3).map((p, i) => (
+              <span key={p.id} className="inline-flex items-center gap-2 text-sm font-medium">
+                <span className={`font-black ${i === 0 ? 'text-bni-red' : 'text-gray-500'}`}>
+                  {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
+                </span>
+                <span className="text-black">{p.display_name}</span>
+                <span className="text-bni-red font-bold">{p.total_score} pts</span>
+              </span>
+            ))}
+            {/* Duplicate for seamless loop */}
+            {players.slice(0, 3).map((p, i) => (
+              <span key={`dup-${p.id}`} className="inline-flex items-center gap-2 text-sm font-medium">
+                <span className={`font-black ${i === 0 ? 'text-bni-red' : 'text-gray-500'}`}>
+                  {i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}
+                </span>
+                <span className="text-black">{p.display_name}</span>
+                <span className="text-bni-red font-bold">{p.total_score} pts</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       {/* Question */}
       <div className="bg-bni-red rounded-xl p-5 mb-4 text-center">
         <p className="text-white text-xl font-medium">{currentQuestion?.question_text}</p>
