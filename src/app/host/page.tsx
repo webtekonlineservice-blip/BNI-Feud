@@ -188,7 +188,7 @@ export default function HostPage() {
       <div className="flex items-center justify-between mb-3">
         <div>
           <p className="text-sm text-gray-500">Question {currentIndex + 1} of {questions.length}</p>
-          <p className="text-bni-red font-bold">{currentQuestion?.members?.name} — {currentQuestion?.members?.role}</p>
+          <p className="text-black font-bold">{currentQuestion?.members?.name} <span className="text-gray-500 font-normal">— {currentQuestion?.members?.role}</span></p>
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-500">Revealed</p>
