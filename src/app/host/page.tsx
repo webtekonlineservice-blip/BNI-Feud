@@ -163,20 +163,53 @@ export default function HostPage() {
 
   // ── LEADERBOARD ───────────────────────────────────────────────────────────
   if (phase === 'leaderboard') return (
-    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6">
-      <h1 className="text-4xl font-black mb-8"><span className="text-bni-red">LEADERBOARD</span></h1>
-      <div className="w-full max-w-lg space-y-3">
+    <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6 relative overflow-hidden">
+      {/* Confetti-like background */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-10 left-10 text-4xl animate-bounce delay-100">🎉</div>
+        <div className="absolute top-20 right-16 text-3xl animate-bounce delay-300">🏆</div>
+        <div className="absolute bottom-20 left-20 text-3xl animate-bounce delay-500">🎊</div>
+        <div className="absolute bottom-16 right-10 text-4xl animate-bounce delay-700">⭐</div>
+        <div className="absolute top-32 left-1/3 text-2xl animate-bounce delay-200">🍽</div>
+        <div className="absolute top-16 right-1/3 text-2xl animate-bounce delay-400">🔥</div>
+      </div>
+
+      {/* Winner announcement */}
+      {players.length > 0 && (
+        <div className="text-center mb-6 animate-pulse">
+          <div className="text-6xl mb-2">🏆</div>
+          <h1 className="text-3xl font-black text-bni-red mb-1">CONGRATULATIONS!</h1>
+          <p className="text-2xl font-bold text-black">{players[0]?.display_name}</p>
+          <p className="text-lg text-gray-500">wins with <span className="text-bni-red font-black">{players[0]?.total_score}</span> points!</p>
+          <p className="text-bni-red font-medium mt-2">🍽 Lunch is on the chapter!</p>
+        </div>
+      )}
+
+      {/* Full leaderboard */}
+      <div className="w-full max-w-lg space-y-2">
         {players.map((p, i) => (
-          <div key={p.id} className={`flex items-center gap-4 rounded-xl p-4 border-2 ${i === 0 ? 'border-bni-red bg-red-50' : 'border-gray-200'}`}>
-            <div className="text-2xl font-bold text-gray-400 w-8">{i + 1}</div>
-            <div className="flex-1">
-              <div className="font-bold">{p.display_name}</div>
-              {i === 0 && <div className="text-bni-red text-sm">Wins lunch!</div>}
+          <div key={p.id} className={`flex items-center gap-4 rounded-xl p-4 border-2 transition-all ${
+            i === 0 ? 'border-bni-red bg-red-50 scale-105 shadow-lg' 
+            : i === 1 ? 'border-gray-300 bg-gray-50' 
+            : i === 2 ? 'border-gray-200 bg-gray-50' 
+            : 'border-gray-100'
+          }`}>
+            <div className="text-2xl w-8 text-center">
+              {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : <span className="text-gray-400 font-bold">{i + 1}</span>}
             </div>
-            <div className={`text-2xl font-black ${i === 0 ? 'text-bni-red' : 'text-black'}`}>{p.total_score}</div>
+            <div className="flex-1">
+              <div className={`font-bold ${i === 0 ? 'text-lg' : ''}`}>{p.display_name}</div>
+              {i === 0 && <div className="text-bni-red text-xs font-medium">WINNER</div>}
+            </div>
+            <div className={`font-black ${i === 0 ? 'text-3xl text-bni-red' : 'text-xl text-black'}`}>{p.total_score}</div>
           </div>
         ))}
       </div>
+
+      {/* Play again */}
+      <button onClick={() => setPhase('lobby')} className="mt-8 bg-bni-red hover:bg-bni-red-dark text-white font-bold px-8 py-3 rounded-xl transition">
+        Play Again
+      </button>
     </div>
   )
 

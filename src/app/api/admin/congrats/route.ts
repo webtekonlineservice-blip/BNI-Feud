@@ -13,7 +13,7 @@ export async function POST() {
     const client = twilio(process.env.TWILIO_ACCOUNT_SID!, process.env.TWILIO_AUTH_TOKEN!)
 
     await client.messages.create({
-      body: 'Congratulations ' + winner.display_name + '! You won BNI Family Feud with ' + winner.total_score + ' points! Lunch is on the chapter!',
+      body: 'Congratulations ' + winner.display_name + '! You won BNI Family Feud with ' + winner.total_score + ' points! Lunch is on Patrick!',
       from: process.env.TWILIO_PHONE_NUMBER!,
       to: winner.phone_number,
     })
