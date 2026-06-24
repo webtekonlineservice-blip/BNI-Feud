@@ -96,6 +96,8 @@ export default function HostPage() {
     if (nextIdx >= questions.length) {
       setPhase('leaderboard')
       loadPlayers()
+      // Send congrats text to the winner
+      fetch('/api/admin/congrats', { method: 'POST' }).catch(() => {})
       return
     }
 
