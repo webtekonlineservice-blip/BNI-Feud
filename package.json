@@ -10,6 +10,7 @@
     "generate-questions": "npx ts-node --project tsconfig.scripts.json scripts/generate-questions.ts"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "firebase": "^10.12.2",
     "firebase-admin": "^12.1.1",
     "fuse.js": "^7.0.0",
