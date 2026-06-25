@@ -164,16 +164,6 @@ export default function HostPage() {
   // ── LEADERBOARD ───────────────────────────────────────────────────────────
   if (phase === 'leaderboard') return (
     <div className="min-h-[calc(100vh-4rem)] flex flex-col items-center justify-center p-6 relative overflow-hidden">
-      {/* Confetti-like background */}
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-10 left-10 text-4xl animate-bounce delay-100">🎉</div>
-        <div className="absolute top-20 right-16 text-3xl animate-bounce delay-300">🏆</div>
-        <div className="absolute bottom-20 left-20 text-3xl animate-bounce delay-500">🎊</div>
-        <div className="absolute bottom-16 right-10 text-4xl animate-bounce delay-700">⭐</div>
-        <div className="absolute top-32 left-1/3 text-2xl animate-bounce delay-200">🍽</div>
-        <div className="absolute top-16 right-1/3 text-2xl animate-bounce delay-400">🔥</div>
-      </div>
-
       {/* Winner announcement */}
       {players.length > 0 && (
         <div className="text-center mb-6 animate-pulse">
@@ -181,7 +171,7 @@ export default function HostPage() {
           <h1 className="text-3xl font-black text-bni-red mb-1">CONGRATULATIONS!</h1>
           <p className="text-2xl font-bold text-black">{players[0]?.display_name}</p>
           <p className="text-lg text-gray-500">wins with <span className="text-bni-red font-black">{players[0]?.total_score}</span> points!</p>
-          <p className="text-bni-red font-medium mt-2">🍽 Lunch is on the chapter!</p>
+          <p className="text-bni-red font-medium mt-2">🍽 Lunch is on Patrick!</p>
         </div>
       )}
 
