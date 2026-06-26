@@ -63,22 +63,25 @@ export default function HostPage() {
           .map(d => ({ id: d.id, ...d.data() } as any))
           .filter((r: any) => r.question_id === currentQuestion.id)
         filtered.sort((a: any, b: any) => (b.received_at || '').localeCompare(a.received_at || ''))
-        
-        if (filtered.length > responses.length && filtered.length > 0) {
-          const newest = filtered[0]
-          const id = Date.now().toString() + Math.random()
-          const x = 15 + Math.random() * 55
-          const y = 15 + Math.random() * 45
-          if (newest.matched_answer) {
-            setNotifications(prev => [...prev, { id, type: 'match', name: newest.display_name, answer: newest.raw_answer, matched: newest.matched_answer, points: newest.points_earned, x, y }])
-            try { new Audio('/sounds/Correct.wav').play() } catch {}
-          } else {
-            setNotifications(prev => [...prev, { id, type: 'miss', name: newest.display_name, answer: newest.raw_answer, x, y }])
-            try { new Audio('/sounds/Wrong.wav').play() } catch {}
+
+        for (const r of filtered) {
+          if (!playedIds.current.has(r.id)) {
+            playedIds.current.add(r.id)
+            if (responses.length === 0 && filtered.length > 1) continue
+            const nid = Date.now().toString() + Math.random()
+            const x = 15 + Math.random() * 55
+            const y = 15 + Math.random() * 45
+            if (r.matched_answer) {
+              setNotifications(prev => [...prev, { id: nid, type: 'match', name: r.display_name, answer: r.raw_answer, matched: r.matched_answer, points: r.points_earned, x, y }])
+              try { new Audio('/sounds/Correct.wav').play() } catch {}
+            } else {
+              setNotifications(prev => [...prev, { id: nid, type: 'miss', name: r.display_name, answer: r.raw_answer, x, y }])
+              try { new Audio('/sounds/Wrong.wav').play() } catch {}
+            }
+            setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== nid)), 2000)
           }
-          setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 2000)
         }
-        
+
         setResponses(filtered)
       }
     )
