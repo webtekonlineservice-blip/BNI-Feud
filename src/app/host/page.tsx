@@ -57,8 +57,6 @@ export default function HostPage() {
       (snap) => setAnswers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Answer)))
     )
 
-    firstSnapshot.current = true
-
     const unsubResponses = onSnapshot(
       collection(db, 'responses'),
       (snap) => {
@@ -67,25 +65,21 @@ export default function HostPage() {
           .filter((r: any) => r.question_id === currentQuestion.id)
         filtered.sort((a: any, b: any) => (b.received_at || '').localeCompare(a.received_at || ''))
 
-        if (firstSnapshot.current) {
-          filtered.forEach((r: any) => playedIds.current.add(r.id))
-          firstSnapshot.current = false
-        } else {
-          for (const r of filtered) {
-            if (!playedIds.current.has(r.id)) {
-              playedIds.current.add(r.id)
-              const nid = Date.now().toString() + Math.random()
-              const x = 15 + Math.random() * 55
-              const y = 15 + Math.random() * 45
-              if (r.matched_answer) {
-                setNotifications(prev => [...prev, { id: nid, type: 'match', name: r.display_name, answer: r.raw_answer, matched: r.matched_answer, points: r.points_earned, x, y }])
-                try { new Audio('/sounds/Correct.wav').play() } catch {}
-              } else {
-                setNotifications(prev => [...prev, { id: nid, type: 'miss', name: r.display_name, answer: r.raw_answer, x, y }])
-                try { new Audio('/sounds/Wrong.wav').play() } catch {}
-              }
-              setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== nid)), 2000)
+        for (const r of filtered) {
+          if (!playedIds.current.has(r.id)) {
+            playedIds.current.add(r.id)
+            if (responses.length === 0 && filtered.length > 1) continue
+            const nid = Date.now().toString() + Math.random()
+            const x = 15 + Math.random() * 55
+            const y = 15 + Math.random() * 45
+            if (r.matched_answer) {
+              setNotifications(prev => [...prev, { id: nid, type: 'match', name: r.display_name, answer: r.raw_answer, matched: r.matched_answer, points: r.points_earned, x, y }])
+              try { new Audio('/sounds/Correct.wav').play() } catch {}
+            } else {
+              setNotifications(prev => [...prev, { id: nid, type: 'miss', name: r.display_name, answer: r.raw_answer, x, y }])
+              try { new Audio('/sounds/Wrong.wav').play() } catch {}
             }
+            setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== nid)), 2000)
           }
         }
 
@@ -305,9 +299,25 @@ export default function HostPage() {
         ))}
       </div>
 
-      {/* Response count */}
-      <div className="text-center text-sm text-gray-400 mb-16">
-        {responses.length} answers submitted
+      {/* Live answers + count */}
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-3 mb-16">
+        <div className="flex justify-between items-center mb-2">
+          <span className="text-xs text-gray-500 uppercase font-medium">Answers</span>
+          <span className="text-sm font-bold text-bni-red">{responses.length} submitted</span>
+        </div>
+        {responses.length === 0 && <p className="text-gray-400 text-sm">Waiting for answers...</p>}
+        <div className="space-y-1 max-h-32 overflow-y-auto">
+          {responses.map(r => (
+            <div key={r.id} className="flex items-center justify-between text-sm">
+              <span>
+                <span className="font-medium">{r.display_name}</span>: &quot;{r.raw_answer}&quot;
+              </span>
+              {r.matched_answer
+                ? <span className="text-green-600 font-medium">+{r.points_earned}</span>
+                : <span className="text-gray-400">✗</span>}
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Fixed bottom corners: Prev / Next */}
