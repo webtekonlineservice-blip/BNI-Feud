@@ -290,50 +290,10 @@ export default function HostPage() {
         ))}
       </div>
 
-      {/* Live responses feed */}
-      <div className="flex-1 bg-gray-50 border border-gray-200 rounded-lg p-3 mb-16 overflow-y-auto max-h-48">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-xs text-gray-500 uppercase font-medium">Live Answers</span>
-          <span className="text-xs text-gray-400">{responses.length} submitted</span>
-        </div>
-        {responses.length === 0 && <p className="text-gray-400 text-sm">Waiting for answers...</p>}
-        <div className="space-y-1">
-          {responses.map(r => (
-            <div key={r.id} className="flex items-center justify-between text-sm">
-              <span>
-                <span className="font-medium">{r.display_name}</span>: &quot;{r.raw_answer}&quot;
-              </span>
-              {r.matched_answer
-                ? <span className="text-green-600 font-medium">+{r.points_earned}</span>
-                : <span className="text-gray-400">miss</span>}
-            </div>
-          ))}
-        </div>
+      {/* Response count */}
+      <div className="text-center text-sm text-gray-400 mb-16">
+        {responses.length} answers submitted
       </div>
-
-      {/* Flash notification overlay */}
-      {notification && (
-        <div className="fixed inset-0 flex items-center justify-center z-40 pointer-events-none">
-          {notification.type === 'miss' ? (
-            <div className="text-center animate-bounce">
-              <div className="text-[10rem] font-black text-bni-red leading-none">✗</div>
-              <div className="bg-white/95 rounded-xl px-6 py-3 shadow-2xl border-2 border-bni-red mt-2">
-                <p className="font-bold text-lg text-bni-red">{notification.name}</p>
-                <p className="text-gray-500">&quot;{notification.answer}&quot;</p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center animate-bounce">
-              <div className="text-[10rem] font-black text-green-500 leading-none">✓</div>
-              <div className="bg-white/95 rounded-xl px-6 py-3 shadow-2xl border-2 border-green-500 mt-2">
-                <p className="font-bold text-lg text-green-600">{notification.name}</p>
-                <p className="text-black font-medium">&quot;{notification.matched}&quot;</p>
-                <p className="text-green-600 font-black text-2xl">+{notification.points} pts</p>
-              </div>
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Fixed bottom corners: Prev / Next */}
       <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between bg-white border-t border-gray-200">
