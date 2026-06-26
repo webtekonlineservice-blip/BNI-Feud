@@ -19,6 +19,7 @@ export default function HostPage() {
   const [answers, setAnswers] = useState<Answer[]>([])
   const [loading, setLoading] = useState(true)
   const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
+  const playedIds = useRef(new Set<string>())
 
   const loadQuestions = useCallback(async () => {
     try {
@@ -95,8 +96,6 @@ export default function HostPage() {
     if (!questions.length) return
     setCurrentIndex(0)
     setResponses([])
-    isFirstLoad.current = true
-    responseCountRef.current = 0
     setPhase('playing')
     await fetch('/api/questions', {
       method: 'PATCH',
