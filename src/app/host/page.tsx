@@ -72,7 +72,7 @@ export default function HostPage() {
             setNotification({ type: 'miss', name: newest.display_name, answer: newest.raw_answer })
             try { new Audio('/sounds/buzz.wav').play() } catch {}
           }
-          setTimeout(() => setNotification(null), 2500)
+          setTimeout(() => setNotification(null), 1800)
         }
         
         setResponses(filtered)
