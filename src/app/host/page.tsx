@@ -70,10 +70,10 @@ export default function HostPage() {
           const y = 15 + Math.random() * 45
           if (newest.matched_answer) {
             setNotifications(prev => [...prev, { id, type: 'match', name: newest.display_name, answer: newest.raw_answer, matched: newest.matched_answer, points: newest.points_earned, x, y }])
-            try { new Audio('/sounds/ding.wav').play() } catch {}
+            try { new Audio('/sounds/Correct.wav').play() } catch {}
           } else {
             setNotifications(prev => [...prev, { id, type: 'miss', name: newest.display_name, answer: newest.raw_answer, x, y }])
-            try { new Audio('/sounds/buzz.wav').play() } catch {}
+            try { new Audio('/sounds/Wrong.wav').play() } catch {}
           }
           setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 2000)
         }
@@ -297,30 +297,6 @@ export default function HostPage() {
       <div className="text-center text-sm text-gray-400 mb-16">
         {responses.length} answers submitted
       </div>
-
-      {/* Flash notifications - scattered across screen */}
-      {notifications.map(n => (
-        <div key={n.id} className="fixed z-40 pointer-events-none animate-bounce" style={{ left: `${n.x}%`, top: `${n.y}%`, transform: 'translate(-50%, -50%)' }}>
-          {n.type === 'miss' ? (
-            <div className="text-center">
-              <div className="text-7xl font-black text-bni-red leading-none drop-shadow-lg">✗</div>
-              <div className="bg-white/95 rounded-lg px-3 py-1.5 shadow-xl border-2 border-bni-red mt-1">
-                <p className="font-bold text-sm text-bni-red">{n.name}</p>
-                <p className="text-gray-500 text-xs">&quot;{n.answer}&quot;</p>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center">
-              <div className="text-7xl font-black text-green-500 leading-none drop-shadow-lg">✓</div>
-              <div className="bg-white/95 rounded-lg px-3 py-1.5 shadow-xl border-2 border-green-500 mt-1">
-                <p className="font-bold text-sm text-green-600">{n.name}</p>
-                <p className="text-black font-medium text-xs">&quot;{n.matched}&quot;</p>
-                <p className="text-green-600 font-black text-lg">+{n.points}</p>
-              </div>
-            </div>
-          )}
-        </div>
-      ))}
 
       {/* Fixed bottom corners: Prev / Next */}
       <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between bg-white border-t border-gray-200">
