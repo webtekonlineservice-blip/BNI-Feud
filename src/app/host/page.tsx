@@ -1,5 +1,5 @@
 'use client'
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import { db } from '@/lib/firebase'
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore'
 
@@ -19,6 +19,8 @@ export default function HostPage() {
   const [answers, setAnswers] = useState<Answer[]>([])
   const [loading, setLoading] = useState(true)
   const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
+  const responseCountRef = useRef(0)
+  const isFirstLoad = useRef(true)
 
   const loadQuestions = useCallback(async () => {
     try {
@@ -63,7 +65,10 @@ export default function HostPage() {
           .filter((r: any) => r.question_id === currentQuestion.id)
         filtered.sort((a: any, b: any) => (b.received_at || '').localeCompare(a.received_at || ''))
         
-        if (filtered.length > responses.length && filtered.length > 0) {
+        if (isFirstLoad.current) {
+          isFirstLoad.current = false
+          responseCountRef.current = filtered.length
+        } else if (filtered.length > responseCountRef.current) {
           const newest = filtered[0]
           const id = Date.now().toString() + Math.random()
           const x = 15 + Math.random() * 55
@@ -77,7 +82,7 @@ export default function HostPage() {
           }
           setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== id)), 2000)
         }
-        
+        responseCountRef.current = filtered.length
         setResponses(filtered)
       }
     )
@@ -120,6 +125,8 @@ export default function HostPage() {
 
     setCurrentIndex(nextIdx)
     setResponses([])
+    isFirstLoad.current = true
+    responseCountRef.current = 0
     await fetch('/api/questions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
