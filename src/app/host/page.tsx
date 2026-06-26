@@ -20,6 +20,7 @@ export default function HostPage() {
   const [loading, setLoading] = useState(true)
   const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
   const playedIds = useRef(new Set<string>())
+  const firstSnapshot = useRef(true)
 
   const loadQuestions = useCallback(async () => {
     try {
@@ -56,6 +57,8 @@ export default function HostPage() {
       (snap) => setAnswers(snap.docs.map(d => ({ id: d.id, ...d.data() } as Answer)))
     )
 
+    firstSnapshot.current = true
+
     const unsubResponses = onSnapshot(
       collection(db, 'responses'),
       (snap) => {
@@ -64,21 +67,25 @@ export default function HostPage() {
           .filter((r: any) => r.question_id === currentQuestion.id)
         filtered.sort((a: any, b: any) => (b.received_at || '').localeCompare(a.received_at || ''))
 
-        for (const r of filtered) {
-          if (!playedIds.current.has(r.id)) {
-            playedIds.current.add(r.id)
-            if (responses.length === 0 && filtered.length > 1) continue
-            const nid = Date.now().toString() + Math.random()
-            const x = 15 + Math.random() * 55
-            const y = 15 + Math.random() * 45
-            if (r.matched_answer) {
-              setNotifications(prev => [...prev, { id: nid, type: 'match', name: r.display_name, answer: r.raw_answer, matched: r.matched_answer, points: r.points_earned, x, y }])
-              try { new Audio('/sounds/Correct.wav').play() } catch {}
-            } else {
-              setNotifications(prev => [...prev, { id: nid, type: 'miss', name: r.display_name, answer: r.raw_answer, x, y }])
-              try { new Audio('/sounds/Wrong.wav').play() } catch {}
+        if (firstSnapshot.current) {
+          filtered.forEach((r: any) => playedIds.current.add(r.id))
+          firstSnapshot.current = false
+        } else {
+          for (const r of filtered) {
+            if (!playedIds.current.has(r.id)) {
+              playedIds.current.add(r.id)
+              const nid = Date.now().toString() + Math.random()
+              const x = 15 + Math.random() * 55
+              const y = 15 + Math.random() * 45
+              if (r.matched_answer) {
+                setNotifications(prev => [...prev, { id: nid, type: 'match', name: r.display_name, answer: r.raw_answer, matched: r.matched_answer, points: r.points_earned, x, y }])
+                try { new Audio('/sounds/Correct.wav').play() } catch {}
+              } else {
+                setNotifications(prev => [...prev, { id: nid, type: 'miss', name: r.display_name, answer: r.raw_answer, x, y }])
+                try { new Audio('/sounds/Wrong.wav').play() } catch {}
+              }
+              setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== nid)), 2000)
             }
-            setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== nid)), 2000)
           }
         }
 
