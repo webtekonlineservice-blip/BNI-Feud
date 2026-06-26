@@ -18,6 +18,7 @@ export default function HostPage() {
   const [phase, setPhase] = useState<GamePhase>('lobby')
   const [answers, setAnswers] = useState<Answer[]>([])
   const [loading, setLoading] = useState(true)
+  const [notification, setNotification] = useState<{ type: 'match' | 'miss'; name: string; answer: string; matched?: string; points?: number } | null>(null)
 
   const loadQuestions = useCallback(async () => {
     try {
@@ -61,6 +62,19 @@ export default function HostPage() {
           .map(d => ({ id: d.id, ...d.data() } as any))
           .filter((r: any) => r.question_id === currentQuestion.id)
         filtered.sort((a: any, b: any) => (b.received_at || '').localeCompare(a.received_at || ''))
+        
+        if (filtered.length > responses.length && filtered.length > 0) {
+          const newest = filtered[0]
+          if (newest.matched_answer) {
+            setNotification({ type: 'match', name: newest.display_name, answer: newest.raw_answer, matched: newest.matched_answer, points: newest.points_earned })
+            try { new Audio('/sounds/ding.wav').play() } catch {}
+          } else {
+            setNotification({ type: 'miss', name: newest.display_name, answer: newest.raw_answer })
+            try { new Audio('/sounds/buzz.wav').play() } catch {}
+          }
+          setTimeout(() => setNotification(null), 2500)
+        }
+        
         setResponses(filtered)
       }
     )
@@ -296,6 +310,30 @@ export default function HostPage() {
           ))}
         </div>
       </div>
+
+      {/* Flash notification overlay */}
+      {notification && (
+        <div className="fixed inset-0 flex items-center justify-center z-40 pointer-events-none">
+          {notification.type === 'miss' ? (
+            <div className="text-center animate-bounce">
+              <div className="text-[10rem] font-black text-bni-red leading-none">✗</div>
+              <div className="bg-white/95 rounded-xl px-6 py-3 shadow-2xl border-2 border-bni-red mt-2">
+                <p className="font-bold text-lg text-bni-red">{notification.name}</p>
+                <p className="text-gray-500">&quot;{notification.answer}&quot;</p>
+              </div>
+            </div>
+          ) : (
+            <div className="text-center animate-bounce">
+              <div className="text-[10rem] font-black text-green-500 leading-none">✓</div>
+              <div className="bg-white/95 rounded-xl px-6 py-3 shadow-2xl border-2 border-green-500 mt-2">
+                <p className="font-bold text-lg text-green-600">{notification.name}</p>
+                <p className="text-black font-medium">&quot;{notification.matched}&quot;</p>
+                <p className="text-green-600 font-black text-2xl">+{notification.points} pts</p>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Fixed bottom corners: Prev / Next */}
       <div className="fixed bottom-0 left-0 right-0 p-4 flex justify-between bg-white border-t border-gray-200">
