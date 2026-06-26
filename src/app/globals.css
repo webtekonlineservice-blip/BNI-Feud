@@ -10,3 +10,12 @@ body {
   margin: 0;
   padding: 0;
 }
+
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll {
+  animation: ticker 10s linear infinite;
+}

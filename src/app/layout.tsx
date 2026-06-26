@@ -43,8 +43,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <Navbar />
         <main className="pt-16 flex-1">{children}</main>
         <Footer />
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   )
