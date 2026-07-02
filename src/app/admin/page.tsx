@@ -233,6 +233,24 @@ export default function AdminPage() {
     }
   };
 
+  const deleteQuestion = async () => {
+    if (!editing || !confirm('Delete this question?')) return;
+    setActionLoading(true);
+    try {
+      await fetch('/api/admin/edit', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question_id: editing.id }),
+      });
+      setEditing(null);
+      fetchData();
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   const openEditPlayer = (p: Player) => {
     setEditingPlayer(p);
     setEditPlayerName(p.display_name);
@@ -675,20 +693,29 @@ export default function AdminPage() {
                   Total: {editAnswers.reduce((sum, a) => sum + a.points, 0)} points
                 </p>
               </div>
-              <div className="flex gap-3 justify-end">
+              <div className="flex gap-3 justify-between">
                 <button
-                  onClick={() => setEditing(null)}
-                  className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={saveQuestion}
+                  onClick={deleteQuestion}
                   disabled={actionLoading}
-                  className="px-4 py-2 bg-bni-red text-white rounded font-medium hover:opacity-90 disabled:opacity-50 transition"
+                  className="px-4 py-2 bg-red-600 text-white rounded font-medium hover:bg-red-700 disabled:opacity-50 transition"
                 >
-                  Save
+                  Delete
                 </button>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setEditing(null)}
+                    className="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={saveQuestion}
+                    disabled={actionLoading}
+                    className="px-4 py-2 bg-bni-red text-white rounded font-medium hover:opacity-90 disabled:opacity-50 transition"
+                  >
+                    Save
+                  </button>
+                </div>
               </div>
             </div>
           </div>
