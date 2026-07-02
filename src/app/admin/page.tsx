@@ -21,6 +21,12 @@ interface Player {
   total_score: number;
 }
 
+interface Member {
+  id: string;
+  name: string;
+  role: string;
+}
+
 interface Slide {
   id: string;
   url: string;
@@ -52,6 +58,7 @@ export default function AdminPage() {
   const [editing, setEditing] = useState<Question | null>(null);
   const [editQuestion, setEditQuestion] = useState('');
   const [editAnswers, setEditAnswers] = useState<{ id: string; answer_text: string; points: number }[]>([]);
+  const [editMemberId, setEditMemberId] = useState('');
 
   // Player edit modal
   const [editingPlayer, setEditingPlayer] = useState<Player | null>(null);
@@ -202,6 +209,7 @@ export default function AdminPage() {
   const openEditQuestion = (q: Question) => {
     setEditing(q);
     setEditQuestion(q.question_text);
+    setEditMemberId((q as any).member_id || '');
     const answers = Array.from({ length: 6 }, (_, i) => {
       const existing = q.question_answers.find((a) => a.display_order === i + 1);
       return existing
@@ -209,6 +217,13 @@ export default function AdminPage() {
         : { id: '', answer_text: '', points: 0 };
     });
     setEditAnswers(answers);
+  };
+
+  const openNewQuestion = () => {
+    setEditing({ id: '', question_text: '', members: null, question_answers: [] } as Question);
+    setEditQuestion('');
+    setEditMemberId('');
+    setEditAnswers(Array.from({ length: 6 }, () => ({ id: '', answer_text: '', points: 0 })));
   };
 
   const saveQuestion = async () => {
@@ -463,7 +478,12 @@ export default function AdminPage() {
 
           {/* Questions Section */}
           <div>
-            <h2 className="text-lg font-semibold mb-3">Questions</h2>
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-semibold">Questions</h2>
+              <button onClick={openNewQuestion} className="px-3 py-1.5 bg-bni-red text-white rounded text-sm font-medium hover:opacity-90 transition">
+                + Add Question
+              </button>
+            </div>
             <div className="space-y-3">
               {questions.map((q) => (
                 <div
