@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { auth } from '@/lib/firebase';
+import { auth, db } from '@/lib/firebase';
 import { signInWithEmailAndPassword, signOut, onAuthStateChanged, User } from 'firebase/auth';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, query, orderBy } from 'firebase/firestore';
+import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
 
 interface Question {
@@ -19,6 +21,14 @@ interface Player {
   total_score: number;
 }
 
+interface Slide {
+  id: string;
+  url: string;
+  order: number;
+  filename: string;
+  uploadedAt: string;
+}
+
 export default function AdminPage() {
   const router = useRouter();
 
@@ -30,7 +40,7 @@ export default function AdminPage() {
   const [error, setError] = useState('');
 
   // Tab state
-  const [tab, setTab] = useState<'manage' | 'analytics'>('manage');
+  const [tab, setTab] = useState<'manage' | 'analytics' | 'slides'>('manage');
 
   // Data state
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -50,6 +60,10 @@ export default function AdminPage() {
 
   // Analytics
   const [analytics, setAnalytics] = useState<any>(null);
+
+  // Slides
+  const [slides, setSlides] = useState<Slide[]>([]);
+  const [uploading, setUploading] = useState(false);
 
   // Auth listener
   useEffect(() => {
@@ -80,6 +94,72 @@ export default function AdminPage() {
     } catch (e) {
       console.error('Failed to fetch data', e);
     }
+  };
+
+  const fetchSlides = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('slides')
+        .select('*')
+        .order('order', { ascending: true });
+      if (error) throw error;
+      setSlides(data || []);
+    } catch (e) {
+      console.error('Failed to fetch slides', e);
+    }
+  };
+
+  const handleUploadSlide = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const timestamp = Date.now();
+      const ext = file.name.split('.').pop();
+      const filename = `${timestamp}_${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('slides')
+        .upload(filename, file, { contentType: file.type });
+      if (uploadError) throw uploadError;
+      const url = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/slides/${filename}`;
+      const newOrder = slides.length > 0 ? Math.max(...slides.map((s) => s.order)) + 1 : 1;
+      const { error: insertError } = await supabase.from('slides').insert({
+        url,
+        order: newOrder,
+        filename,
+      });
+      if (insertError) throw insertError;
+      await fetchSlides();
+    } catch (err) {
+      console.error('Upload failed', err);
+    } finally {
+      setUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const deleteSlide = async (slide: Slide) => {
+    if (!confirm('Delete this slide?')) return;
+    try {
+      await supabase.storage.from('slides').remove([slide.filename]);
+      await supabase.from('slides').delete().eq('id', slide.id);
+      await fetchSlides();
+    } catch (err) {
+      console.error('Delete failed', err);
+    }
+  };
+
+  const moveSlide = async (slide: Slide, direction: 'up' | 'down') => {
+    const sorted = [...slides].sort((a, b) => a.order - b.order);
+    const index = sorted.findIndex((s) => s.id === slide.id);
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === sorted.length - 1) return;
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    const swapSlide = sorted[swapIndex];
+    const tempOrder = slide.order;
+    await supabase.from('slides').update({ order: swapSlide.order }).eq('id', slide.id);
+    await supabase.from('slides').update({ order: tempOrder }).eq('id', swapSlide.id);
+    await fetchSlides();
   };
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -210,10 +290,16 @@ export default function AdminPage() {
     }
   };
 
-  const handleTabChange = (t: 'manage' | 'analytics') => {
+  const handleTabChange = (t: 'manage' | 'analytics' | 'slides') => {
     setTab(t);
     if (t === 'analytics') {
       loadAnalytics();
+    }
+    if (t === 'slides') {
+      fetchSlides();
+    }
+    if (t === 'slides') {
+      fetchSlides();
     }
   };
 
@@ -279,6 +365,12 @@ export default function AdminPage() {
           className={`pb-2 px-1 font-medium transition ${tab === 'analytics' ? 'border-b-2 border-bni-red text-bni-red' : 'text-gray-500'}`}
         >
           Analytics
+        </button>
+        <button
+          onClick={() => handleTabChange('slides')}
+          className={`pb-2 px-1 font-medium transition ${tab === 'slides' ? 'border-b-2 border-bni-red text-bni-red' : 'text-gray-500'}`}
+        >
+          Slides
         </button>
       </div>
 
@@ -446,7 +538,7 @@ export default function AdminPage() {
                         <div>
                           <span className="font-medium">{g.name}</span>
                           <span className="text-gray-500 text-sm ml-2">&quot;{g.answer}&quot;</span>
-                          {g.matched && <span className="text-green-600 text-xs ml-2">✓ matched</span>}
+                          {g.matched && <span className="text-green-600 text-xs ml-2">&#10003; matched</span>}
                         </div>
                         <span className="font-semibold text-bni-red">{g.points} pts</span>
                       </div>
@@ -461,6 +553,73 @@ export default function AdminPage() {
                   {analytics.completedQuestions}/{analytics.totalQuestions} questions played · avg {analytics.avgAnswersPerQuestion} answers/question
                 </p>
               )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SLIDES TAB */}
+      {tab === 'slides' && (
+        <div>
+          {/* Upload Button */}
+          <div className="mb-6">
+            <label className="inline-flex items-center gap-2 px-4 py-2 bg-bni-red text-white rounded font-medium hover:opacity-90 transition cursor-pointer">
+              {uploading ? 'Uploading...' : 'Upload Slide'}
+              <input
+                type="file"
+                accept="image/png,image/jpeg,image/jpg,image/webp"
+                onChange={handleUploadSlide}
+                disabled={uploading}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {/* Slides Grid - Drag & Drop */}
+          {slides.length === 0 ? (
+            <p className="text-gray-500">No slides uploaded yet.</p>
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {slides
+                .sort((a, b) => a.order - b.order)
+                .map((slide) => (
+                  <div
+                    key={slide.id}
+                    draggable
+                    onDragStart={(e) => e.dataTransfer.setData('slideId', slide.id)}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDrop={async (e) => {
+                      e.preventDefault();
+                      const dragId = e.dataTransfer.getData('slideId');
+                      if (dragId === slide.id) return;
+                      const dragSlide = slides.find(s => s.id === dragId);
+                      if (!dragSlide) return;
+                      const tempOrder = dragSlide.order;
+                      await updateDoc(doc(db, 'slides', dragId), { order: slide.order });
+                      await updateDoc(doc(db, 'slides', slide.id), { order: tempOrder });
+                      fetchSlides();
+                    }}
+                    className="border border-gray-200 rounded-lg overflow-hidden cursor-grab active:cursor-grabbing hover:border-bni-red transition"
+                  >
+                    <div className="relative aspect-video bg-gray-100">
+                      <img
+                        src={slide.url}
+                        alt={`Slide ${slide.order}`}
+                        className="w-full h-full object-cover pointer-events-none"
+                      />
+                      <button
+                        onClick={() => deleteSlide(slide)}
+                        className="absolute top-2 right-2 w-6 h-6 flex items-center justify-center bg-red-600 text-white rounded-full text-xs font-bold hover:bg-red-700 transition"
+                        title="Delete slide"
+                      >
+                        &times;
+                      </button>
+                      <span className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                        #{slide.order}
+                      </span>
+                    </div>
+                  </div>
+                ))}
             </div>
           )}
         </div>

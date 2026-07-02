@@ -10,6 +10,7 @@
     "generate-questions": "npx ts-node --project tsconfig.scripts.json scripts/generate-questions.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.110.0",
     "@vercel/analytics": "^2.0.1",
     "@vercel/speed-insights": "^2.0.0",
     "firebase": "^10.12.2",
