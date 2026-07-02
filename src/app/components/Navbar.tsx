@@ -3,9 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 
-const navLinks = [
-  { href: '/host', label: 'Game' },
-]
+const navLinks: { href: string; label: string }[] = []
 
 export default function Navbar() {
   const pathname = usePathname()
