@@ -23,6 +23,7 @@ export default function PresentationPage() {
   const [answers, setAnswers] = useState<Answer[]>([])
   const [currentIndex, setCurrentIndex] = useState(0)
   const [gameActive, setGameActive] = useState(false)
+  const [gameFinished, setGameFinished] = useState(false)
   const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
   const playedIds = useRef(new Set<string>())
   const firstSnapshot = useRef(true)
