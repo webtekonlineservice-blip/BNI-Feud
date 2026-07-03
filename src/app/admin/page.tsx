@@ -9,6 +9,7 @@ import ManageTab from './components/ManageTab';
 import MembersTab from './components/MembersTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import SlidesTab from './components/SlidesTab';
+import CommandBar from './components/CommandBar';
 
 interface Question {
   id: string;
@@ -396,7 +397,7 @@ export default function AdminPage() {
 
       {tab === 'members' && <MembersTab />}
 
-      {tab === 'analytics' && <AnalyticsTab analytics={analytics} />}
+      {tab === 'analytics' && <AnalyticsTab />}
 
       {tab === 'slides' && (
         <SlidesTab
@@ -408,6 +409,8 @@ export default function AdminPage() {
           onReorder={handleReorderSlide}
         />
       )}
+
+      <CommandBar />
     </div>
   );
 }

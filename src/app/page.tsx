@@ -252,7 +252,7 @@ export default function PresentationPage() {
           drawerOpen ? 'bg-gray-800 text-white' : 'bg-bni-red text-white hover:scale-105'
         }`}
       >
-        {drawerOpen ? '▼ Close Game' : '▲ Open Game'}
+        {drawerOpen ? '▼ Close' : '▲ Open'}
       </button>
 
       {/* Game drawer */}
