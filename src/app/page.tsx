@@ -170,9 +170,9 @@ export default function PresentationPage() {
   const revealed = answers.filter(a => a.is_revealed).length
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden select-none">
-      {/* Slide viewer — full screen */}
-      <div className="w-full h-screen flex items-center justify-center bg-black">
+    <div className="h-screen w-screen bg-black relative overflow-hidden select-none fixed inset-0 z-0">
+      {/* Slide viewer — full viewport */}
+      <div className="w-full h-full flex items-center justify-center bg-black">
         <img
           src={slides[currentSlide]?.url || ''}
           alt={`Slide ${currentSlide + 1}`}
