@@ -259,7 +259,28 @@ export default function PresentationPage() {
       <div className={`fixed bottom-0 left-0 right-0 z-30 bg-white border-t-4 border-bni-red rounded-t-3xl shadow-2xl transition-transform duration-300 ${
         drawerOpen ? 'translate-y-0' : 'translate-y-full'
       }`} style={{ maxHeight: '70vh' }}>
-        <div className="p-4 overflow-y-auto" style={{ maxHeight: '65vh' }}>
+        {/* Scrolling leaderboard at top of drawer */}
+        {gameActive && players.length > 0 && (
+          <div className="overflow-hidden border-b border-gray-200 py-2 bg-gray-50">
+            <div className="animate-scroll flex whitespace-nowrap gap-8 px-4">
+              {players.map((p, i) => (
+                <span key={p.id} className="inline-flex items-center gap-2 text-sm font-medium">
+                  <span>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`}</span>
+                  <span className="text-black">{p.display_name}</span>
+                  <span className="text-bni-red font-bold">{p.total_score}</span>
+                </span>
+              ))}
+              {players.map((p, i) => (
+                <span key={`dup-${p.id}`} className="inline-flex items-center gap-2 text-sm font-medium">
+                  <span>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`}</span>
+                  <span className="text-black">{p.display_name}</span>
+                  <span className="text-bni-red font-bold">{p.total_score}</span>
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        <div className="p-4 overflow-y-auto" style={{ maxHeight: '60vh' }}>
 
           {/* Not started */}
           {!gameActive && (
