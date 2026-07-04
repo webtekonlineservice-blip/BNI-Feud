@@ -9,7 +9,6 @@ import ManageTab from './components/ManageTab';
 import MembersTab from './components/MembersTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import SlidesTab from './components/SlidesTab';
-import CommandBar from './components/CommandBar';
 
 interface Question {
   id: string;
@@ -410,7 +409,6 @@ export default function AdminPage() {
         />
       )}
 
-      <CommandBar />
     </div>
   );
 }
