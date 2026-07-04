@@ -24,7 +24,7 @@ export default function PresentationPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [gameActive, setGameActive] = useState(false)
   const [gameFinished, setGameFinished] = useState(false)
-  const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
+  const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss' | 'join'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
   const playedIds = useRef(new Set<string>())
   const firstSnapshot = useRef(true)
 
@@ -46,6 +46,37 @@ export default function PresentationPage() {
     supabase.from('slides').select('*').order('order', { ascending: true }).then(({ data }) => {
       if (data) setSlides(data)
     })
+  }, [])
+
+  // Listen for new player joins (always active)
+  const playerIds = useRef(new Set<string>())
+  const playerFirstSnapshot = useRef(true)
+
+  useEffect(() => {
+    const unsubJoins = onSnapshot(collection(db, 'players'), (snap) => {
+      const all = snap.docs.map(d => ({ id: d.id, ...d.data() } as Player))
+      all.sort((a, b) => b.total_score - a.total_score)
+      setPlayers(all)
+
+      if (playerFirstSnapshot.current) {
+        snap.docs.forEach(d => playerIds.current.add(d.id))
+        playerFirstSnapshot.current = false
+      } else {
+        for (const d of snap.docs) {
+          if (!playerIds.current.has(d.id)) {
+            playerIds.current.add(d.id)
+            const name = d.data().display_name || 'Player'
+            const nid = Date.now().toString() + Math.random()
+            const x = 10 + Math.random() * 70
+            const y = 10 + Math.random() * 50
+            setNotifications(prev => [...prev, { id: nid, type: 'match' as const, name, answer: 'joined the game!', matched: 'New Player', points: 0, x, y }])
+            try { new Audio('/sounds/Correct.wav').play() } catch {}
+            setTimeout(() => setNotifications(prev => prev.filter(n => n.id !== nid)), 3000)
+          }
+        }
+      }
+    })
+    return () => unsubJoins()
   }, [])
 
   // Real-time listeners when game is active
@@ -208,6 +239,14 @@ export default function PresentationPage() {
               <div className="bg-white/95 rounded-lg px-3 py-1.5 shadow-xl border-2 border-bni-red mt-1">
                 <p className="font-bold text-sm text-bni-red">{n.name}</p>
                 <p className="text-gray-500 text-xs">&quot;{n.answer}&quot;</p>
+              </div>
+            </div>
+          ) : n.type === 'join' ? (
+            <div className="text-center">
+              <div className="text-5xl leading-none drop-shadow-lg">🎮</div>
+              <div className="bg-white/95 rounded-lg px-3 py-1.5 shadow-xl border-2 border-blue-400 mt-1">
+                <p className="font-bold text-sm text-blue-600">{n.name}</p>
+                <p className="text-blue-400 text-xs font-medium">joined!</p>
               </div>
             </div>
           ) : (
