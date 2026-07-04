@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 
+declare global {
+  interface Window { PageAgent: any }
+}
+
 export default function CommandBar() {
   const [open, setOpen] = useState(false);
   const [command, setCommand] = useState('');
@@ -9,6 +13,7 @@ export default function CommandBar() {
   const [loading, setLoading] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const agentRef = useRef<any>(null);
+  const scriptLoaded = useRef(false);
 
   // Cmd+K to open
   useEffect(() => {
@@ -27,11 +32,20 @@ export default function CommandBar() {
     if (open && inputRef.current) inputRef.current.focus();
   }, [open]);
 
-  // Initialize page-agent lazily
-  const getAgent = async () => {
+  // Load page-agent via CDN
+  useEffect(() => {
+    if (scriptLoaded.current) return;
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/page-agent@1.10.0/dist/iife/page-agent.demo.js?autoInit=false';
+    script.crossOrigin = 'true';
+    script.onload = () => { scriptLoaded.current = true; };
+    document.head.appendChild(script);
+  }, []);
+
+  const getAgent = () => {
     if (agentRef.current) return agentRef.current;
-    const { PageAgent } = await import('page-agent');
-    agentRef.current = new PageAgent({
+    if (!window.PageAgent) return null;
+    agentRef.current = new window.PageAgent({
       model: 'deepseek-chat',
       baseURL: 'https://api.deepseek.com',
       apiKey: process.env.NEXT_PUBLIC_DEEPSEEK_API_KEY || '',
@@ -45,7 +59,8 @@ export default function CommandBar() {
     setLoading(true);
     setStatus('Thinking...');
     try {
-      const agent = await getAgent();
+      const agent = getAgent();
+      if (!agent) { setStatus('Agent not ready — try again'); setLoading(false); return; }
       await agent.execute(command);
       setStatus('Done!');
       setCommand('');
@@ -63,7 +78,7 @@ export default function CommandBar() {
         className="fixed bottom-4 right-4 z-50 bg-bni-red text-white px-4 py-2 rounded-full shadow-lg text-sm font-medium hover:scale-105 transition flex items-center gap-2"
       >
         <span>⌘K</span>
-        <span>AI Command</span>
+        <span>AI</span>
       </button>
     );
   }
@@ -79,7 +94,7 @@ export default function CommandBar() {
             value={command}
             onChange={e => setCommand(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && executeCommand()}
-            placeholder="Type a command... e.g. 'Click Start Game' or 'Go to Slides tab'"
+            placeholder="Type a command... e.g. 'Click Full Reset'"
             className="flex-1 py-4 text-black outline-none text-sm"
             disabled={loading}
           />
@@ -91,7 +106,7 @@ export default function CommandBar() {
           </div>
         )}
         <div className="px-4 py-2 text-xs text-gray-400 flex justify-between">
-          <span>Powered by DeepSeek + Page Agent</span>
+          <span>DeepSeek + Page Agent</span>
           <span>Esc to close</span>
         </div>
       </div>
