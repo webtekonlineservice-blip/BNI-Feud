@@ -24,6 +24,8 @@ export default function PresentationPage() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [gameActive, setGameActive] = useState(false)
   const [gameFinished, setGameFinished] = useState(false)
+  const [showConfetti, setShowConfetti] = useState(false)
+  const [slideKey, setSlideKey] = useState(0) // triggers fade animation on slide change
   const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss' | 'join'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
   const playedIds = useRef(new Set<string>())
   const firstSnapshot = useRef(true)
@@ -135,8 +137,8 @@ export default function PresentationPage() {
   // Keyboard navigation
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowRight') setCurrentSlide(s => Math.min(s + 1, slides.length - 1))
-      if (e.key === 'ArrowLeft') setCurrentSlide(s => Math.max(s - 1, 0))
+      if (e.key === 'ArrowRight') { setCurrentSlide(s => Math.min(s + 1, slides.length - 1)); setSlideKey(k => k + 1) }
+      if (e.key === 'ArrowLeft') { setCurrentSlide(s => Math.max(s - 1, 0)); setSlideKey(k => k + 1) }
       if (e.key === 'g' || e.key === 'G') setDrawerOpen(prev => !prev)
       if (e.key === 'Escape') setDrawerOpen(false)
       if ((e.key === ' ' || e.key === 'n' || e.key === 'N') && gameActive && drawerOpen) {
