@@ -139,6 +139,11 @@ export default function PresentationPage() {
       if (e.key === 'ArrowLeft') setCurrentSlide(s => Math.max(s - 1, 0))
       if (e.key === 'g' || e.key === 'G') setDrawerOpen(prev => !prev)
       if (e.key === 'Escape') setDrawerOpen(false)
+      if ((e.key === ' ' || e.key === 'n' || e.key === 'N') && gameActive && drawerOpen) {
+        e.preventDefault()
+        nextQuestion()
+      }
+      if ((e.key === 'p' || e.key === 'P') && gameActive && drawerOpen) prevQuestion()
     }
     window.addEventListener('keydown', handleKey)
     return () => window.removeEventListener('keydown', handleKey)
@@ -149,6 +154,7 @@ export default function PresentationPage() {
     if (!questions.length) return
     setCurrentIndex(0)
     setGameActive(true)
+    setDrawerOpen(true) // auto-open drawer when game starts
     await fetch('/api/questions', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
@@ -198,6 +204,16 @@ export default function PresentationPage() {
     })
   }
 
+  const revealAll = async () => {
+    for (const ans of answers.filter(a => !a.is_revealed)) {
+      await fetch('/api/answers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question_id: currentQuestion.id, answer_id: ans.id, action: 'reveal' }),
+      })
+    }
+  }
+
   const revealed = answers.filter(a => a.is_revealed).length
 
   return (
@@ -214,6 +230,12 @@ export default function PresentationPage() {
       {/* Slide counter */}
       <div className="fixed top-4 right-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm z-10">
         {currentSlide + 1} / {slides.length}
+      </div>
+
+      {/* Player count badge */}
+      <div className="fixed top-4 left-4 bg-black/60 text-white px-3 py-1 rounded-full text-sm z-10 flex items-center gap-2">
+        <span className={`w-2 h-2 rounded-full ${players.length > 0 ? 'bg-green-400 animate-pulse' : 'bg-gray-500'}`} />
+        <span>{players.length} player{players.length !== 1 ? 's' : ''}</span>
       </div>
 
       {/* Slide navigation arrows */}
@@ -326,9 +348,14 @@ export default function PresentationPage() {
             <div className="text-center py-8">
               <h2 className="text-2xl font-black mb-2"><span className="text-bni-red">BNI</span> Family Feud</h2>
               <p className="text-gray-500 mb-6">{questions.length} questions · {players.length} players</p>
-              <button onClick={startGame} disabled={!questions.length} className="bg-bni-red hover:bg-bni-red-dark text-white font-bold text-lg px-8 py-3 rounded-xl transition disabled:opacity-50">
+              <button onClick={startGame} disabled={!questions.length} className="bg-bni-red hover:bg-bni-red-dark text-white font-bold text-lg px-8 py-3 rounded-xl transition disabled:opacity-50 animate-pulse">
                 Start Game
               </button>
+              <div className="mt-4">
+                <button onClick={() => window.location.reload()} className="text-xs text-gray-400 hover:text-gray-600 underline">
+                  Refresh / Clear Old Data
+                </button>
+              </div>
             </div>
           )}
 
@@ -352,29 +379,38 @@ export default function PresentationPage() {
                 <p className="text-white font-medium">{currentQuestion.question_text}</p>
               </div>
 
-              {/* Answer board */}
-              <div className="grid grid-cols-3 gap-2 mb-3">
+              {/* Answer board — dark mode, bigger text */}
+              <div className="grid grid-cols-2 gap-2 mb-3">
                 {answers.map(ans => (
                   <button
                     key={ans.id}
                     onClick={() => revealAnswer(ans.id)}
-                    className={`rounded-lg p-2 text-left transition-all border ${
-                      ans.is_revealed ? 'bg-green-50 border-green-400' : 'bg-gray-50 border-gray-200 hover:border-bni-red'
+                    className={`rounded-lg p-3 text-left transition-all border-2 ${
+                      ans.is_revealed
+                        ? 'bg-green-800 border-green-500 text-white'
+                        : 'bg-gray-900 border-gray-700 hover:border-bni-red text-white'
                     }`}
                   >
                     <div className="flex justify-between">
-                      <span className="text-[10px] text-gray-400">#{ans.display_order}</span>
-                      <span className="text-[10px] font-bold text-bni-red">{ans.points}</span>
+                      <span className="text-xs text-gray-400">#{ans.display_order}</span>
+                      <span className="text-xs font-bold text-yellow-400">{ans.points}pts</span>
                     </div>
-                    <div className={`text-xs font-medium mt-0.5 ${ans.is_revealed ? 'text-black' : 'text-transparent bg-gray-200 rounded select-none'}`}>
-                      {ans.is_revealed ? ans.answer_text : '████'}
+                    <div className={`text-base font-bold mt-1 ${ans.is_revealed ? 'text-white' : 'text-transparent bg-gray-700 rounded select-none'}`}>
+                      {ans.is_revealed ? ans.answer_text : '████████'}
                     </div>
                   </button>
                 ))}
               </div>
 
+              {/* Reveal All button */}
+              {answers.some(a => !a.is_revealed) && (
+                <button onClick={revealAll} className="w-full mb-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg border border-gray-600 transition">
+                  Reveal All
+                </button>
+              )}
+
               {/* Responses */}
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 mb-3 max-h-24 overflow-y-auto">
+              <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 mb-3 max-h-20 overflow-y-auto">
                 <p className="text-xs text-gray-400 mb-1">{responses.length} answers</p>
                 {responses.map(r => (
                   <div key={r.id} className="flex justify-between text-xs">
