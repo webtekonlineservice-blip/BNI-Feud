@@ -1,0 +1,24 @@
+name: Keep Services Alive
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # Every day at 8am UTC
+  workflow_dispatch:      # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Vercel app (warms Next.js + Firebase)
+        run: |
+          curl -s -o /dev/null -w "Vercel: %{http_code}\n" https://bni-feud.vercel.app/api/players
+
+      - name: Ping Supabase (keeps DB active)
+        run: |
+          curl -s -o /dev/null -w "Supabase: %{http_code}\n" \
+            "https://zncjshezarkitftnqcqj.supabase.co/rest/v1/slides?select=id&limit=1" \
+            -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
+
+      - name: Done
+        run: echo "Keep-alive pings sent successfully"

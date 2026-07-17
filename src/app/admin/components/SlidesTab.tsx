@@ -29,7 +29,7 @@ export default function SlidesTab({ slides, uploading, onUpload, onDelete, onReo
           {uploading ? 'Uploading...' : 'Upload Slide'}
           <input
             type="file"
-            accept="image/png,image/jpeg,image/jpg,image/webp"
+            accept="image/png,image/jpeg,image/jpg,image/webp,image/gif"
             onChange={onUpload}
             disabled={uploading}
             className="hidden"

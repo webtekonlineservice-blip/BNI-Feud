@@ -258,26 +258,6 @@ export default function PresentationPage() {
         ›
       </button>
 
-      {/* Confetti */}
-      {showConfetti && (
-        <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
-          {Array.from({ length: 80 }).map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-3 opacity-90"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `-${Math.random() * 20 + 5}%`,
-                backgroundColor: ['#CC0000','#FFD700','#00CC44','#0066FF','#FF6600','#CC00CC','#FFFFFF'][i % 7],
-                transform: `rotate(${Math.random() * 360}deg)`,
-                animation: `confetti-fall ${2 + Math.random() * 4}s linear ${Math.random() * 2}s forwards`,
-                borderRadius: Math.random() > 0.5 ? '50%' : '0',
-              }}
-            />
-          ))}
-        </div>
-      )}
-
       {/* Scattered notifications — always visible over slides */}
       {notifications.map(n => (
         <div key={n.id} className="fixed z-50 pointer-events-none animate-bounce" style={{ left: `${n.x}%`, top: `${n.y}%`, transform: 'translate(-50%, -50%)' }}>
