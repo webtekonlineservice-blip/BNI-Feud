@@ -16,7 +16,7 @@ jobs:
       - name: Ping Supabase (keeps DB active)
         run: |
           curl -s -o /dev/null -w "Supabase: %{http_code}\n" \
-            "https://zncjshezarkitftnqcqj.supabase.co/rest/v1/slides?select=id&limit=1" \
+            "https://dauxdrbewoqfjrjlimwo.supabase.co/rest/v1/slides?select=id&limit=1" \
             -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
             -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
 
