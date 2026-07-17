@@ -382,7 +382,7 @@ export default function PresentationPage() {
 
               {/* Question */}
               <div className="bg-bni-red rounded-xl p-4 mb-3 text-center">
-                <p className="text-white font-medium">{currentQuestion.question_text}</p>
+                <p className="text-white text-xl md:text-2xl font-bold">{currentQuestion.question_text}</p>
               </div>
 
               {/* Answer board — dark mode, bigger text */}
