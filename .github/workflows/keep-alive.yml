@@ -1,24 +1,24 @@
-name: Keep Services Alive
+name: Keep Supabase Alive
 
 on:
   schedule:
-    - cron: '0 8 * * *'  # Every day at 8am UTC
-  workflow_dispatch:      # Allow manual trigger
+    - cron: '0 9 * * 1'  # Every Monday at 9am UTC
+  workflow_dispatch:      # Allow manual trigger from GitHub UI
 
 jobs:
-  ping:
+  ping-supabase:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Ping Vercel app (warms Next.js + Firebase)
+      - name: Ping Supabase — players table
         run: |
-          curl -s -o /dev/null -w "Vercel: %{http_code}\n" https://bni-feud.vercel.app/api/players
-
-      - name: Ping Supabase (keeps DB active)
-        run: |
-          curl -s -o /dev/null -w "Supabase: %{http_code}\n" \
-            "https://zncjshezarkitftnqcqj.supabase.co/rest/v1/slides?select=id&limit=1" \
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            "${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}/rest/v1/players?select=id&limit=1" \
             -H "apikey: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}" \
-            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}"
-
-      - name: Done
-        run: echo "Keep-alive pings sent successfully"
+            -H "Authorization: Bearer ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}")
+          echo "Supabase response: $STATUS"
+          if [ "$STATUS" -lt 200 ] || [ "$STATUS" -ge 300 ]; then
+            echo "❌ Unexpected status $STATUS"
+            exit 1
+          fi
+          echo "✅ Supabase is alive"
