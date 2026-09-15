@@ -15,7 +15,7 @@ export default function Navbar() {
             height={36}
             className="h-9 w-auto transition-all duration-300 hover:scale-110 hover:brightness-125 hover:drop-shadow-lg"
           />
-          <span className="inline-block bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
+          <span className="inline-block bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-semibold px-2.5 py-1 rounded-full uppercase tracking-wider shadow-lg">
             Beta
           </span>
         </Link>
