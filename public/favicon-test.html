@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BNI Feud - Favicon Test</title>
+  <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #0056b3;
+      margin-bottom: 10px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+    }
+    .icon-display {
+      display: flex;
+      gap: 30px;
+      margin: 30px 0;
+      flex-wrap: wrap;
+    }
+    .icon-box {
+      text-align: center;
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+      border: 2px solid #e0e0e0;
+    }
+    .icon-box h3 {
+      margin: 15px 0 5px 0;
+      font-size: 14px;
+      color: #333;
+    }
+    .icon-box p {
+      margin: 0;
+      font-size: 12px;
+      color: #999;
+    }
+    .icon-preview {
+      width: 180px;
+      height: 180px;
+      background: white;
+      border: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+    .icon-preview img {
+      max-width: 100%;
+      max-height: 100%;
+    }
+    .check-list {
+      background: #e8f4f8;
+      padding: 20px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+    .check-list h3 {
+      margin-top: 0;
+      color: #0056b3;
+    }
+    .check-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+    }
+    .check-mark {
+      color: #00a86b;
+      font-size: 20px;
+      font-weight: bold;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+    }
+    .browser-check {
+      margin-top: 30px;
+      padding: 15px;
+      background: #fff3cd;
+      border-left: 4px solid #ff6a00;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 BNI Feud Favicon</h1>
+    <p class="subtitle">Testing and Preview Page</p>
+    
+    <div class="check-list">
+      <h3>✅ Icon Checklist</h3>
+      <div class="check-item">
+        <span class="check-mark">✓</span>
+        <span><strong>SVG Favicon:</strong> <code>/img/favicon.svg</code> is active and working!</span>
+      </div>
+      <div class="check-item">
+        <span class="check-mark">✓</span>
+        <span><strong>Modern Design:</strong> Blue BNI brand colors with orange game-show accent</span>
+      </div>
+      <div class="check-item">
+        <span class="check-mark">✓</span>
+        <span><strong>Scalable:</strong> Vector format looks crisp at any size</span>
+      </div>
+      <div class="check-item">
+        <span style="color: #ff6a00; font-size: 20px; font-weight: bold;">⚠</span>
+        <span><strong>Apple Icon:</strong> Generate PNG version from SVG (see instructions below)</span>
+      </div>
+    </div>
+    
+    <div class="icon-display">
+      <div class="icon-box">
+        <div class="icon-preview">
+          <img src="/img/favicon.svg" alt="BNI Feud Favicon" style="width: 128px; height: 128px;">
+        </div>
+        <h3>SVG Favicon</h3>
+        <p>Current (Working!)</p>
+      </div>
+      
+      <div class="icon-box">
+        <div class="icon-preview" style="width: 64px; height: 64px;">
+          <img src="/img/favicon.svg" alt="Browser Tab" style="width: 32px; height: 32px;">
+        </div>
+        <h3>Browser Tab Size</h3>
+        <p>32x32 pixels</p>
+      </div>
+    </div>
+    
+    <div class="browser-check">
+      <h3 style="margin-top: 0;">👀 Look at your browser tab!</h3>
+      <p style="margin-bottom: 0;">If you see the BNI Feud icon (blue with "BNI" text) in the browser tab above, the favicon is working perfectly!</p>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 8px;">
+      <h3>📱 Generate Apple Touch Icon (Optional)</h3>
+      <p>To create the PNG version for iOS home screens:</p>
+      <ol style="line-height: 1.8;">
+        <li>Visit <a href="https://cloudconvert.com/svg-to-png" target="_blank">CloudConvert</a> or similar</li>
+        <li>Upload <code>/img/favicon.svg</code></li>
+        <li>Set output size to <strong>180x180 pixels</strong></li>
+        <li>Download and save as <code>public/img/apple-icon.png</code></li>
+      </ol>
+      <p style="margin-top: 15px; color: #666; font-size: 14px;">
+        <strong>Note:</strong> The SVG favicon already works great for all modern browsers. 
+        The PNG version is only needed for iOS home screen icons and some older browsers.
+      </p>
+    </div>
+    
+    <div style="margin-top: 30px; padding: 15px; background: #e8f5e9; border-radius: 8px;">
+      <h4 style="margin-top: 0; color: #2e7d32;">✨ What Makes This Favicon Great:</h4>
+      <ul style="line-height: 1.8; margin-bottom: 0;">
+        <li><strong>Brand Aligned:</strong> Uses official BNI blue (#0056b3)</li>
+        <li><strong>Game Theme:</strong> Orange accent stripe gives Family Feud vibe</li>
+        <li><strong>Clear Text:</strong> "BNI FEUD" is readable even at small sizes</li>
+        <li><strong>Modern Format:</strong> SVG scales perfectly to any resolution</li>
+        <li><strong>Professional:</strong> Clean, bold design stands out in bookmarks</li>
+      </ul>
+    </div>
+    
+    <div style="text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+      <a href="/" style="display: inline-block; padding: 12px 24px; background: #0056b3; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
+        ← Back to BNI Feud Game
+      </a>
+    </div>
+  </div>
+</body>
+</html>

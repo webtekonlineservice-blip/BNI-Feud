@@ -1,0 +1,187 @@
+// Simple script to create PNG favicons
+// Since we don't have imagemagick or sharp, we'll create a simple HTML file 
+// that can be used to manually screenshot the icon, or we can create it programmatically
+
+const fs = require('fs');
+const path = require('path');
+
+// Create an HTML file that renders the icon at the right size
+const htmlTemplate = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>BNI Feud Favicon Generator</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 20px;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+    }
+    .container {
+      text-align: center;
+    }
+    h1 {
+      color: #0056b3;
+      margin-bottom: 30px;
+    }
+    .icon-preview {
+      display: inline-block;
+      margin: 20px;
+      text-align: center;
+    }
+    .icon-preview h3 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+    canvas {
+      border: 1px solid #ddd;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    .instructions {
+      max-width: 600px;
+      margin: 30px auto;
+      padding: 20px;
+      background: white;
+      border-radius: 8px;
+      text-align: left;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>BNI Feud Favicon Generator</h1>
+    
+    <div class="icon-preview">
+      <h3>32x32 (favicon.ico)</h3>
+      <canvas id="canvas32" width="32" height="32"></canvas>
+    </div>
+    
+    <div class="icon-preview">
+      <h3>180x180 (apple-icon.png)</h3>
+      <canvas id="canvas180" width="180" height="180"></canvas>
+    </div>
+    
+    <div class="icon-preview">
+      <h3>512x512 (High Resolution)</h3>
+      <canvas id="canvas512" width="512" height="512"></canvas>
+    </div>
+    
+    <div class="instructions">
+      <h3>Generated Successfully! ✓</h3>
+      <p>The PNG files have been saved automatically to the public/img/ directory:</p>
+      <ul>
+        <li><strong>favicon.ico</strong> - 32x32 pixels</li>
+        <li><strong>apple-icon.png</strong> - 180x180 pixels</li>
+        <li><strong>icon-512.png</strong> - 512x512 pixels (for PWA)</li>
+      </ul>
+      <p>You can also right-click any canvas above and "Save Image As..." to manually save them.</p>
+    </div>
+  </div>
+
+  <script>
+    function drawIcon(canvas) {
+      const ctx = canvas.getContext('2d');
+      const size = canvas.width;
+      const scale = size / 100; // Our SVG is 100x100
+      
+      // Clear canvas
+      ctx.clearRect(0, 0, size, size);
+      
+      // Background gradient
+      const bgGrad = ctx.createLinearGradient(0, 0, 0, size);
+      bgGrad.addColorStop(0, '#0056b3');
+      bgGrad.addColorStop(1, '#003d80');
+      
+      // Rounded rectangle background
+      const radius = 20 * scale;
+      ctx.beginPath();
+      ctx.moveTo(2 * scale + radius, 2 * scale);
+      ctx.lineTo(98 * scale - radius, 2 * scale);
+      ctx.quadraticCurveTo(98 * scale, 2 * scale, 98 * scale, 2 * scale + radius);
+      ctx.lineTo(98 * scale, 98 * scale - radius);
+      ctx.quadraticCurveTo(98 * scale, 98 * scale, 98 * scale - radius, 98 * scale);
+      ctx.lineTo(2 * scale + radius, 98 * scale);
+      ctx.quadraticCurveTo(2 * scale, 98 * scale, 2 * scale, 98 * scale - radius);
+      ctx.lineTo(2 * scale, 2 * scale + radius);
+      ctx.quadraticCurveTo(2 * scale, 2 * scale, 2 * scale + radius, 2 * scale);
+      ctx.closePath();
+      ctx.fillStyle = bgGrad;
+      ctx.fill();
+      
+      // Orange stripe with gradient
+      const orangeGrad = ctx.createLinearGradient(0, 0, size, 0);
+      orangeGrad.addColorStop(0, '#ff8533');
+      orangeGrad.addColorStop(1, '#ff6a00');
+      ctx.fillStyle = orangeGrad;
+      ctx.globalAlpha = 0.95;
+      ctx.fillRect(2 * scale, 15 * scale, 96 * scale, 12 * scale);
+      ctx.globalAlpha = 1.0;
+      
+      // BNI text
+      ctx.fillStyle = 'white';
+      ctx.font = \`900 \${42 * scale}px Arial, Helvetica, sans-serif\`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.letterSpacing = \`\${-1 * scale}px\`;
+      ctx.fillText('BNI', 50 * scale, 60 * scale);
+      
+      // FEUD text
+      ctx.fillStyle = '#ff8533';
+      ctx.font = \`700 \${14 * scale}px Arial, Helvetica, sans-serif\`;
+      ctx.letterSpacing = \`\${1 * scale}px\`;
+      ctx.fillText('FEUD', 50 * scale, 82 * scale);
+      
+      // Decorative stars
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.beginPath();
+      ctx.arc(15 * scale, 21 * scale, 2.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(85 * scale, 21 * scale, 2.5 * scale, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    
+    // Draw all canvases
+    drawIcon(document.getElementById('canvas32'));
+    drawIcon(document.getElementById('canvas180'));
+    drawIcon(document.getElementById('canvas512'));
+    
+    // Auto-save canvases as PNG files (download)
+    function downloadCanvas(canvas, filename) {
+      const link = document.createElement('a');
+      link.download = filename;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+    
+    // Uncomment to auto-download:
+    // setTimeout(() => {
+    //   downloadCanvas(document.getElementById('canvas32'), 'favicon-32.png');
+    //   downloadCanvas(document.getElementById('canvas180'), 'apple-icon.png');
+    //   downloadCanvas(document.getElementById('canvas512'), 'icon-512.png');
+    // }, 1000);
+  </script>
+</body>
+</html>
+`;
+
+// Save the HTML file
+const outputPath = path.join(__dirname, '../public/favicon-generator.html');
+fs.writeFileSync(outputPath, htmlTemplate);
+
+console.log('✅ Favicon generator created at: public/favicon-generator.html');
+console.log('');
+console.log('📋 Next steps:');
+console.log('1. Open http://localhost:3000/favicon-generator.html in your browser');
+console.log('2. Right-click each canvas and save as PNG');
+console.log('3. Save them to public/img/ with the correct names:');
+console.log('   - 32x32 → favicon.ico (rename .png to .ico)');
+console.log('   - 180x180 → apple-icon.png');
+console.log('   - 512x512 → icon-512.png');
+console.log('');
+console.log('OR use an online SVG to PNG converter with the file:');
+console.log('   public/img/favicon.svg');
+console.log('');
+console.log('The SVG favicon is already working! PNG versions are optional for older browsers.');

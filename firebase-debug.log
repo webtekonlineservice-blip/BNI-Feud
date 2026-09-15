@@ -1,0 +1,439 @@
+[debug] [2026-09-15T16:56:28.837Z] ----------------------------------------------------------------------
+[debug] [2026-09-15T16:56:28.839Z] Command:       /opt/homebrew/Cellar/node@22/22.22.0/bin/node /Users/wilbur/.nvm/versions/node/v18.20.5/bin/firebase deploy --only hosting,firestore,functions
+[debug] [2026-09-15T16:56:28.839Z] CLI Version:   13.31.2
+[debug] [2026-09-15T16:56:28.839Z] Platform:      darwin
+[debug] [2026-09-15T16:56:28.839Z] Node Version:  v22.22.0
+[debug] [2026-09-15T16:56:28.840Z] Time:          Tue Sep 15 2026 11:56:28 GMT-0500 (Central Daylight Time)
+[debug] [2026-09-15T16:56:28.840Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2026-09-15T16:56:28.943Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-09-15T16:56:28.943Z] > authorizing via signed-in user (webtekdigitalai@gmail.com)
+[debug] [2026-09-15T16:56:28.943Z] [iam] checking project linked-in-test-7cfa8 for permissions ["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2026-09-15T16:56:28.944Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:28.944Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:28.944Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions [none]
+[debug] [2026-09-15T16:56:28.944Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:56:28.944Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-09-15T16:56:29.275Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions 200
+[debug] [2026-09-15T16:56:29.275Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions {"permissions":["datastore.indexes.create","datastore.indexes.delete","datastore.indexes.list","datastore.indexes.update","firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2026-09-15T16:56:29.276Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:29.276Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:29.276Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/linked-in-test-7cfa8 [none]
+[debug] [2026-09-15T16:56:29.639Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/linked-in-test-7cfa8 200
+[debug] [2026-09-15T16:56:29.639Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/linked-in-test-7cfa8 {"projectId":"linked-in-test-7cfa8","projectNumber":"485223257770","displayName":"BNI-Feud","name":"projects/linked-in-test-7cfa8","resources":{"hostingSite":"linked-in-test-7cfa8"},"state":"ACTIVE","labels":{"firebase":"enabled"},"etag":"1_716a066c-ce86-44cf-a37a-3b054e51e962"}
+[debug] [2026-09-15T16:56:30.532Z] defaultcredentials: writing to file /Users/wilbur/.config/firebase/webtekdigitalai_gmail_com_application_default_credentials.json
+[debug] [2026-09-15T16:56:30.532Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:30.533Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:30.533Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites pageToken=&pageSize=10
+[debug] [2026-09-15T16:56:31.223Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites 200
+[debug] [2026-09-15T16:56:31.223Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites {"sites":[{"name":"projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8","defaultUrl":"https://linked-in-test-7cfa8.web.app","appId":"1:485223257770:web:646c118b8dd2130ae262d3","type":"DEFAULT_SITE"}]}
+[debug] [2026-09-15T16:56:31.224Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:31.224Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:31.224Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:485223257770:web:646c118b8dd2130ae262d3/config [none]
+[debug] [2026-09-15T16:56:31.837Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:485223257770:web:646c118b8dd2130ae262d3/config 200
+[debug] [2026-09-15T16:56:31.838Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/-/webApps/1:485223257770:web:646c118b8dd2130ae262d3/config {"projectId":"linked-in-test-7cfa8","appId":"1:485223257770:web:646c118b8dd2130ae262d3","storageBucket":"linked-in-test-7cfa8.firebasestorage.app","apiKey":"AIzaSyAvJuMcsVj1-_bT-fLzv_HwMbASAVBMRbc","authDomain":"linked-in-test-7cfa8.firebaseapp.com","messagingSenderId":"485223257770","measurementId":"G-46WGBEC75S","projectNumber":"485223257770","version":"2"}
+[info] 
+   Thank you for trying our early preview of Next.js support on Firebase Hosting.
+   During the preview, support is best-effort and breaking changes can be expected. Proceed with caution.
+
+   Documentation: https://firebase.google.com/docs/hosting/frameworks/nextjs
+   File a bug: https://github.com/firebase/firebase-tools/issues/new?template=bug_report.md
+   Submit a feature request: https://github.com/firebase/firebase-tools/issues/new?template=feature_request.md
+
+   We'd love to learn from you. Express your interest in helping us shape the future of Firebase Hosting: https://goo.gle/41enW5X
+
+[debug] [2026-09-15T16:56:33.608Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:33.608Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:33.608Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8 [none]
+[debug] [2026-09-15T16:56:34.053Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8 200
+[debug] [2026-09-15T16:56:34.054Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8 {"name":"projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8","defaultUrl":"https://linked-in-test-7cfa8.web.app","appId":"1:485223257770:web:646c118b8dd2130ae262d3","type":"DEFAULT_SITE"}
+[info]   ▲ Next.js 14.2.5
+
+[info]   - Environments: .env.local
+
+
+[info]    Creating an optimized production build ...
+
+[info]  ✓ Compiled successfully
+
+[info]    Linting and checking validity of types ...
+
+[info]    Collecting page data ...
+
+[info]  ⚠ Using edge runtime on a page currently disables static generation for that page
+
+[info]    Generating static pages (0/8) ...
+
+[info]    Generating static pages (2/8) 
+
+[info]    Generating static pages (4/8) 
+   Generating static pages (6/8) 
+ ✓ Generating static pages (8/8)
+
+[info]    Finalizing page optimization ...
+
+[info]    Collecting build traces ...
+
+[info] 
+
+[info] Route (app)                              Size     First Load JS
+┌ ○ /                                    5.46 kB         260 kB
+├ ○ /_not-found                          875 B            88 kB
+├ ○ /admin                               6.41 kB         261 kB
+├ ƒ /api/admin/analytics                 0 B                0 B
+├ ƒ /api/admin/congrats                  0 B                0 B
+├ ƒ /api/admin/edit                      0 B                0 B
+├ ƒ /api/admin/edit-player               0 B                0 B
+├ ƒ /api/admin/generate                  0 B                0 B
+├ ƒ /api/admin/members                   0 B                0 B
+├ ƒ /api/admin/reset                     0 B                0 B
+├ ƒ /api/answers                         0 B                0 B
+├ ƒ /api/leaderboard                     0 B                0 B
+├ ƒ /api/members                         0 B                0 B
+├ ƒ /api/players                         0 B                0 B
+├ ƒ /api/players/answer                  0 B                0 B
+├ ƒ /api/questions                       0 B                0 B
+├ ƒ /api/twilio                          0 B                0 B
+├ ○ /board                               2.28 kB         208 kB
+├ ○ /host                                3.46 kB         204 kB
+├ ƒ /opengraph-image                     0 B                0 B
+└ ○ /play                                2.33 kB         203 kB
++ First Load JS shared by all            87.1 kB
+  ├ chunks/23-a3a1b6f47a77ad02.js        31.5 kB
+  ├ chunks/fd9d1056-23bdddb1df3a91c8.js  53.7 kB
+  └ other shared chunks (total)          1.94 kB
+
+
+[info] 
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+
+
+[info] Building a Cloud Function to run this application. This is needed due to:
+[info]  • non-static component /api/admin/edit-player/route
+[info]  • non-static component /api/admin/members/route
+[info]  • non-static component /api/admin/edit/route
+[info]  • non-static component /api/admin/congrats/route
+[info]  • non-static component /api/admin/reset/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/leaderboard/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/answers/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/players/answer/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/admin/generate/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/members/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/admin/analytics/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/players/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/questions/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /api/twilio/route
+[debug] [2026-09-15T16:56:51.998Z]  • non-static component /opengraph-image/route
+[info]  • and 10 other reasons, use --debug to see more
+[info] 
+[debug] [2026-09-15T16:56:54.989Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:54.990Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:54.990Z] >>> [apiv2][query] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8 [none]
+[debug] [2026-09-15T16:56:55.537Z] <<< [apiv2][status] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8 200
+[debug] [2026-09-15T16:56:55.537Z] <<< [apiv2][body] GET https://firebasehosting.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8 {"name":"projects/linked-in-test-7cfa8/sites/linked-in-test-7cfa8","defaultUrl":"https://linked-in-test-7cfa8.web.app","appId":"1:485223257770:web:646c118b8dd2130ae262d3","type":"DEFAULT_SITE"}
+[warn] ⚠  This integration expects Node version 16, 18, or 20. You're running version 22, problems may be encountered. 
+[debug] [2026-09-15T16:56:57.398Z] [web frameworks] effective firebase.json:  {
+  "hosting": [
+    {
+      "source": ".",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "frameworksBackend": {
+        "region": "us-central1"
+      },
+      "site": "linked-in-test-7cfa8",
+      "rewrites": [
+        {
+          "source": "**",
+          "function": {
+            "functionId": "ssrlinkedintest7cfa8",
+            "region": "us-central1",
+            "pinTag": true
+          }
+        }
+      ],
+      "redirects": [],
+      "headers": [
+        {
+          "source": "/board",
+          "headers": [
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/board/layout,_N_T_/board/page,_N_T_/board"
+            }
+          ]
+        },
+        {
+          "source": "/_not-found",
+          "headers": [
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/_not-found/layout,_N_T_/_not-found/page,_N_T_/_not-found"
+            }
+          ]
+        },
+        {
+          "source": "/play",
+          "headers": [
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/play/layout,_N_T_/play/page,_N_T_/play"
+            }
+          ]
+        },
+        {
+          "source": "/host",
+          "headers": [
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/host/layout,_N_T_/host/page,_N_T_/host"
+            }
+          ]
+        },
+        {
+          "source": "/admin",
+          "headers": [
+            {
+              "key": "x-next-cache-tags",
+              "value": "_N_T_/layout,_N_T_/admin/layout,_N_T_/admin/page,_N_T_/admin"
+            }
+          ]
+        },
+        {
+          "source": "**/*.[jt]s",
+          "headers": [
+            {
+              "key": "Set-Cookie",
+              "value": "__FIREBASE_DEFAULTS__=eyJjb25maWciOnsicHJvamVjdElkIjoibGlua2VkLWluLXRlc3QtN2NmYTgiLCJhcHBJZCI6IjE6NDg1MjIzMjU3NzcwOndlYjo2NDZjMTE4YjhkZDIxMzBhZTI2MmQzIiwic3RvcmFnZUJ1Y2tldCI6ImxpbmtlZC1pbi10ZXN0LTdjZmE4LmZpcmViYXNlc3RvcmFnZS5hcHAiLCJhcGlLZXkiOiJBSXphU3lBdkp1TWNzVmoxLV9iVC1mTHp2X0h3TWJBU0FWQk1SYmMiLCJhdXRoRG9tYWluIjoibGlua2VkLWluLXRlc3QtN2NmYTguZmlyZWJhc2VhcHAuY29tIiwibWVzc2FnaW5nU2VuZGVySWQiOiI0ODUyMjMyNTc3NzAiLCJtZWFzdXJlbWVudElkIjoiRy00NldHQkVDNzVTIiwicHJvamVjdE51bWJlciI6IjQ4NTIyMzI1Nzc3MCIsInZlcnNpb24iOiIyIn0sIl9hdXRoVG9rZW5TeW5jVVJMIjoiL19fc2Vzc2lvbiJ9; SameSite=Strict; Expires=2028-08-10T03:36:57.398Z; Path=/;"
+            }
+          ]
+        }
+      ],
+      "cleanUrls": true,
+      "trailingSlash": false,
+      "public": ".firebase/linked-in-test-7cfa8/hosting",
+      "webFramework": "next_ssr"
+    }
+  ],
+  "functions": [
+    {
+      "source": ".firebase/linked-in-test-7cfa8/functions",
+      "codebase": "firebase-frameworks-linked-in-test-7cfa8"
+    }
+  ]
+}
+[debug] [2026-09-15T16:56:57.398Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-09-15T16:56:57.398Z] > authorizing via signed-in user (webtekdigitalai@gmail.com)
+[debug] [2026-09-15T16:56:57.398Z] [iam] checking project linked-in-test-7cfa8 for permissions ["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]
+[debug] [2026-09-15T16:56:57.398Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:57.398Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:57.398Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions [none]
+[debug] [2026-09-15T16:56:57.398Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:56:57.399Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-09-15T16:56:57.545Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions 200
+[debug] [2026-09-15T16:56:57.546Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions {"permissions":["cloudfunctions.functions.create","cloudfunctions.functions.delete","cloudfunctions.functions.get","cloudfunctions.functions.list","cloudfunctions.functions.update","cloudfunctions.operations.get","firebase.projects.get"]}
+[debug] [2026-09-15T16:56:57.546Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:57.546Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:57.546Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v1/projects/linked-in-test-7cfa8/locations/-/functions [none]
+[debug] [2026-09-15T16:56:58.041Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v1/projects/linked-in-test-7cfa8/locations/-/functions 200
+[debug] [2026-09-15T16:56:58.041Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v1/projects/linked-in-test-7cfa8/locations/-/functions {}
+[debug] [2026-09-15T16:56:58.042Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.042Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.042Z] >>> [apiv2][query] GET https://cloudfunctions.googleapis.com/v2/projects/linked-in-test-7cfa8/locations/-/functions filter=environment%3D%22GEN_2%22
+[debug] [2026-09-15T16:56:58.396Z] <<< [apiv2][status] GET https://cloudfunctions.googleapis.com/v2/projects/linked-in-test-7cfa8/locations/-/functions 200
+[debug] [2026-09-15T16:56:58.396Z] <<< [apiv2][body] GET https://cloudfunctions.googleapis.com/v2/projects/linked-in-test-7cfa8/locations/-/functions {"functions":[{"name":"projects/linked-in-test-7cfa8/locations/us-central1/functions/ssrlinkedintest7cfa8","buildConfig":{"build":"projects/485223257770/locations/us-central1/builds/a9770d49-7bf9-4f3a-901e-afc3b590eef1","runtime":"nodejs22","entryPoint":"ssrlinkedintest7cfa8","source":{"storageSource":{"bucket":"gcf-v2-sources-485223257770-us-central1","object":"ssrlinkedintest7cfa8/function-source.zip","generation":"1782156784726770"}},"environmentVariables":{"GOOGLE_NODE_RUN_SCRIPTS":""},"dockerRepository":"projects/linked-in-test-7cfa8/locations/us-central1/repositories/gcf-artifacts","sourceProvenance":{"resolvedStorageSource":{"bucket":"gcf-v2-sources-485223257770-us-central1","object":"ssrlinkedintest7cfa8/function-source.zip","generation":"1782156784726770"}},"dockerRegistry":"ARTIFACT_REGISTRY","serviceAccount":"projects/linked-in-test-7cfa8/serviceAccounts/485223257770-compute@developer.gserviceaccount.com","automaticUpdatePolicy":{}},"state":"FAILED","updateTime":"2026-07-06T23:43:14.422244661Z","labels":{"firebase-functions-hash":"a63edcb93f0d4a898972330c69b5a30cc95b44ce","deployment-tool":"cli-firebase","firebase-functions-codebase":"firebase-frameworks-linked-in-test-7cfa8"},"stateMessages":[{"severity":"ERROR","type":"CloudRunServiceNotFound","message":"Cloud Run service projects/linked-in-test-7cfa8/locations/us-central1/services/ssrlinkedintest7cfa8 for the function was not found. The function will not work correctly. Please redeploy."}],"environment":"GEN_2","url":"https://us-central1-linked-in-test-7cfa8.cloudfunctions.net/ssrlinkedintest7cfa8","createTime":"2026-06-22T19:33:05.448113946Z"}]}
+[info] i  hosting: The following function(s) are pinned to site linked-in-test-7cfa8 and will be deployed as well: ssrlinkedintest7cfa8 
+[info] 
+[info] === Deploying to 'linked-in-test-7cfa8'...
+[info] 
+[info] i  deploying functions, firestore, hosting 
+[debug] [2026-09-15T16:56:58.397Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.397Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.397Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8 [none]
+[debug] [2026-09-15T16:56:58.471Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8 200
+[debug] [2026-09-15T16:56:58.471Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8 {"projectNumber":"485223257770","projectId":"linked-in-test-7cfa8","lifecycleState":"ACTIVE","name":"BNI-Feud","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-06-14T03:57:03.058Z"}
+[info] i  functions: preparing codebase firebase-frameworks-linked-in-test-7cfa8 for deployment 
+[info] i  functions: ensuring required API cloudfunctions.googleapis.com is enabled... 
+[debug] [2026-09-15T16:56:58.471Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.471Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.471Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.471Z] Checked if tokens are valid: true, expires at: 1789494843607
+[info] i  functions: ensuring required API cloudbuild.googleapis.com is enabled... 
+[debug] [2026-09-15T16:56:58.472Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.472Z] Checked if tokens are valid: true, expires at: 1789494843607
+[info] i  artifactregistry: ensuring required API artifactregistry.googleapis.com is enabled... 
+[debug] [2026-09-15T16:56:58.472Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.472Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.472Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudfunctions.googleapis.com [none]
+[debug] [2026-09-15T16:56:58.472Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudfunctions.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:56:58.472Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/runtimeconfig.googleapis.com [none]
+[debug] [2026-09-15T16:56:58.472Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/runtimeconfig.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:56:58.473Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudbuild.googleapis.com [none]
+[debug] [2026-09-15T16:56:58.473Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudbuild.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:56:58.474Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/artifactregistry.googleapis.com [none]
+[debug] [2026-09-15T16:56:58.474Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/artifactregistry.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:56:58.766Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/artifactregistry.googleapis.com 200
+[debug] [2026-09-15T16:56:58.766Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/artifactregistry.googleapis.com [omitted]
+[info] ✔  artifactregistry: required API artifactregistry.googleapis.com is enabled 
+[debug] [2026-09-15T16:56:58.772Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/runtimeconfig.googleapis.com 200
+[debug] [2026-09-15T16:56:58.772Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/runtimeconfig.googleapis.com [omitted]
+[debug] [2026-09-15T16:56:58.821Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudbuild.googleapis.com 200
+[debug] [2026-09-15T16:56:58.822Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudbuild.googleapis.com [omitted]
+[info] ✔  functions: required API cloudbuild.googleapis.com is enabled 
+[debug] [2026-09-15T16:56:58.841Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudfunctions.googleapis.com 200
+[debug] [2026-09-15T16:56:58.841Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/cloudfunctions.googleapis.com [omitted]
+[info] ✔  functions: required API cloudfunctions.googleapis.com is enabled 
+[debug] [2026-09-15T16:56:58.842Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.842Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:58.842Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/adminSdkConfig [none]
+[debug] [2026-09-15T16:56:59.261Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/adminSdkConfig 200
+[debug] [2026-09-15T16:56:59.261Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/adminSdkConfig {"projectId":"linked-in-test-7cfa8","storageBucket":"linked-in-test-7cfa8.firebasestorage.app"}
+[debug] [2026-09-15T16:56:59.262Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:59.262Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:56:59.262Z] >>> [apiv2][query] GET https://runtimeconfig.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/configs [none]
+[debug] [2026-09-15T16:56:59.428Z] <<< [apiv2][status] GET https://runtimeconfig.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/configs 200
+[debug] [2026-09-15T16:56:59.428Z] <<< [apiv2][body] GET https://runtimeconfig.googleapis.com/v1beta1/projects/linked-in-test-7cfa8/configs {}
+[debug] [2026-09-15T16:56:59.429Z] Validating nodejs source
+[warn] ⚠  functions: Runtime Node.js 20 was deprecated on 2026-04-30 and will be decommissioned on 2026-10-31, after which you will not be able to deploy without upgrading. Consider upgrading now to avoid disruption. See https://cloud.google.com/functions/docs/runtime-support for full details on the lifecycle policy 
+[warn] ⚠  functions: package.json indicates an outdated version of firebase-functions. Please upgrade using npm install --save firebase-functions@latest in your functions directory. 
+[warn] ⚠  functions: Please note that there will be breaking changes when you upgrade. 
+[debug] [2026-09-15T16:56:59.828Z] > [functions] package.json contents: {
+  "name": "bi-feud",
+  "version": "2.0.0",
+  "private": true,
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.0",
+    "@vercel/analytics": "^2.0.1",
+    "@vercel/speed-insights": "^2.0.0",
+    "firebase": "^10.12.2",
+    "firebase-admin": "^12.1.1",
+    "fuse.js": "^7.0.0",
+    "next": "14.2.5",
+    "openai": "^4.52.0",
+    "qrcode": "^1.5.3",
+    "react": "^18",
+    "react-dom": "^18",
+    "twilio": "^5.2.0",
+    "firebase-frameworks": "^0.11.0",
+    "firebase-functions": "^6.0.1"
+  },
+  "main": "server.js",
+  "engines": {
+    "node": "20"
+  }
+}
+[debug] [2026-09-15T16:56:59.828Z] Building nodejs source
+[info] i  functions: Loading and analyzing source code for codebase firebase-frameworks-linked-in-test-7cfa8 to determine what to deploy 
+[debug] [2026-09-15T16:56:59.828Z] Could not find functions.yaml. Must use http discovery
+[debug] [2026-09-15T16:56:59.834Z] Found firebase-functions binary at '/Users/wilbur/Documents/Github/BNI-Feud/.firebase/linked-in-test-7cfa8/functions/node_modules/.bin/firebase-functions'
+[info] Serving at port 8191
+
+[debug] [2026-09-15T16:57:00.104Z] Got response from /__/functions.yaml {"endpoints":{"ssrlinkedintest7cfa8":{"availableMemoryMb":null,"timeoutSeconds":null,"minInstances":null,"maxInstances":null,"ingressSettings":null,"concurrency":null,"serviceAccountEmail":null,"vpc":null,"platform":"gcfv2","region":["us-central1"],"labels":{},"httpsTrigger":{},"entryPoint":"ssrlinkedintest7cfa8"}},"specVersion":"v1alpha1","requiredAPIs":[],"extensions":{}}
+[info] i  extensions: ensuring required API firebaseextensions.googleapis.com is enabled... 
+[debug] [2026-09-15T16:57:04.136Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:04.136Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:04.136Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/firebaseextensions.googleapis.com [none]
+[debug] [2026-09-15T16:57:04.136Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/firebaseextensions.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:57:04.519Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/firebaseextensions.googleapis.com 200
+[debug] [2026-09-15T16:57:04.519Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/firebaseextensions.googleapis.com [omitted]
+[info] ✔  extensions: required API firebaseextensions.googleapis.com is enabled 
+[debug] [2026-09-15T16:57:04.519Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2026-09-15T16:57:04.519Z] > authorizing via signed-in user (webtekdigitalai@gmail.com)
+[debug] [2026-09-15T16:57:04.519Z] [iam] checking project linked-in-test-7cfa8 for permissions ["firebase.projects.get","firebaseextensions.instances.list"]
+[debug] [2026-09-15T16:57:04.519Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:04.519Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:04.520Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions [none]
+[debug] [2026-09-15T16:57:04.520Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:57:04.520Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-09-15T16:57:04.729Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions 200
+[debug] [2026-09-15T16:57:04.729Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8:testIamPermissions {"permissions":["firebase.projects.get","firebaseextensions.instances.list"]}
+[debug] [2026-09-15T16:57:04.730Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:04.730Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:04.730Z] >>> [apiv2][query] GET https://firebaseextensions.googleapis.com/v1beta/projects/linked-in-test-7cfa8/instances pageSize=100&pageToken=
+[debug] [2026-09-15T16:57:04.969Z] <<< [apiv2][status] GET https://firebaseextensions.googleapis.com/v1beta/projects/linked-in-test-7cfa8/instances 200
+[debug] [2026-09-15T16:57:04.969Z] <<< [apiv2][body] GET https://firebaseextensions.googleapis.com/v1beta/projects/linked-in-test-7cfa8/instances {}
+[info] i  functions: Loaded environment variables from .env. 
+[info] i  functions: preparing .firebase/linked-in-test-7cfa8/functions directory for uploading... 
+[info] i  functions: packaged /Users/wilbur/Documents/Github/BNI-Feud/.firebase/linked-in-test-7cfa8/functions (48.02 MB) for uploading 
+[info] i  functions: ensuring required API run.googleapis.com is enabled... 
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[info] i  functions: ensuring required API eventarc.googleapis.com is enabled... 
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[info] i  functions: ensuring required API pubsub.googleapis.com is enabled... 
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[info] i  functions: ensuring required API storage.googleapis.com is enabled... 
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:07.765Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:07.765Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/run.googleapis.com [none]
+[debug] [2026-09-15T16:57:07.765Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/run.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:57:07.765Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/eventarc.googleapis.com [none]
+[debug] [2026-09-15T16:57:07.765Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/eventarc.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:57:07.766Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/pubsub.googleapis.com [none]
+[debug] [2026-09-15T16:57:07.766Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/pubsub.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:57:07.766Z] >>> [apiv2][query] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/storage.googleapis.com [none]
+[debug] [2026-09-15T16:57:07.766Z] >>> [apiv2][(partial)header] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/storage.googleapis.com x-goog-quota-user=projects/linked-in-test-7cfa8
+[debug] [2026-09-15T16:57:07.948Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/run.googleapis.com 200
+[debug] [2026-09-15T16:57:07.949Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/run.googleapis.com [omitted]
+[info] ✔  functions: required API run.googleapis.com is enabled 
+[debug] [2026-09-15T16:57:08.041Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/eventarc.googleapis.com 200
+[debug] [2026-09-15T16:57:08.041Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/eventarc.googleapis.com [omitted]
+[info] ✔  functions: required API eventarc.googleapis.com is enabled 
+[debug] [2026-09-15T16:57:08.062Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/pubsub.googleapis.com 200
+[debug] [2026-09-15T16:57:08.062Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/pubsub.googleapis.com [omitted]
+[info] ✔  functions: required API pubsub.googleapis.com is enabled 
+[debug] [2026-09-15T16:57:08.099Z] <<< [apiv2][status] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/storage.googleapis.com 200
+[debug] [2026-09-15T16:57:08.099Z] <<< [apiv2][body] GET https://serviceusage.googleapis.com/v1/projects/linked-in-test-7cfa8/services/storage.googleapis.com [omitted]
+[info] ✔  functions: required API storage.googleapis.com is enabled 
+[info] i  functions: generating the service identity for pubsub.googleapis.com... 
+[debug] [2026-09-15T16:57:08.099Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.099Z] Checked if tokens are valid: true, expires at: 1789494843607
+[info] i  functions: generating the service identity for eventarc.googleapis.com... 
+[debug] [2026-09-15T16:57:08.099Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.099Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.099Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/485223257770/services/pubsub.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-09-15T16:57:08.099Z] >>> [apiv2][query] POST https://serviceusage.googleapis.com/v1beta1/projects/485223257770/services/eventarc.googleapis.com:generateServiceIdentity [none]
+[debug] [2026-09-15T16:57:08.443Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/485223257770/services/eventarc.googleapis.com:generateServiceIdentity 200
+[debug] [2026-09-15T16:57:08.443Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/485223257770/services/eventarc.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-485223257770@gcp-sa-eventarc.iam.gserviceaccount.com","uniqueId":"117173423832665764772"}}
+[debug] [2026-09-15T16:57:08.471Z] <<< [apiv2][status] POST https://serviceusage.googleapis.com/v1beta1/projects/485223257770/services/pubsub.googleapis.com:generateServiceIdentity 200
+[debug] [2026-09-15T16:57:08.471Z] <<< [apiv2][body] POST https://serviceusage.googleapis.com/v1beta1/projects/485223257770/services/pubsub.googleapis.com:generateServiceIdentity {"name":"operations/finished.DONE_OPERATION","done":true,"response":{"@type":"type.googleapis.com/google.api.serviceusage.v1beta1.ServiceIdentity","email":"service-485223257770@gcp-sa-pubsub.iam.gserviceaccount.com","uniqueId":"101100137482003560660"}}
+[debug] [2026-09-15T16:57:08.473Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.473Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.473Z] >>> [apiv2][query] GET https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8 [none]
+[debug] [2026-09-15T16:57:08.570Z] <<< [apiv2][status] GET https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8 200
+[debug] [2026-09-15T16:57:08.570Z] <<< [apiv2][body] GET https://cloudresourcemanager.googleapis.com/v1/projects/linked-in-test-7cfa8 {"projectNumber":"485223257770","projectId":"linked-in-test-7cfa8","lifecycleState":"ACTIVE","name":"BNI-Feud","labels":{"firebase":"enabled","firebase-core":"disabled"},"createTime":"2026-06-14T03:57:03.058Z"}
+[info] i  cloud.firestore: checking firestore.rules for compilation errors... 
+[debug] [2026-09-15T16:57:08.572Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.572Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.572Z] >>> [apiv2][query] POST https://firebaserules.googleapis.com/v1/projects/linked-in-test-7cfa8:test [none]
+[debug] [2026-09-15T16:57:08.572Z] >>> [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linked-in-test-7cfa8:test [omitted]
+[debug] [2026-09-15T16:57:08.795Z] <<< [apiv2][status] POST https://firebaserules.googleapis.com/v1/projects/linked-in-test-7cfa8:test 200
+[debug] [2026-09-15T16:57:08.795Z] <<< [apiv2][body] POST https://firebaserules.googleapis.com/v1/projects/linked-in-test-7cfa8:test {}
+[info] ✔  cloud.firestore: rules file firestore.rules compiled successfully 
+[debug] [2026-09-15T16:57:08.799Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.799Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:08.799Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/linked-in-test-7cfa8/versions [none]
+[debug] [2026-09-15T16:57:08.800Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/linked-in-test-7cfa8/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase","firebase-web-framework":"next_ssr"}}
+[debug] [2026-09-15T16:57:14.128Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/linked-in-test-7cfa8/versions 200
+[debug] [2026-09-15T16:57:14.129Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/linked-in-test-7cfa8/versions {"name":"projects/485223257770/sites/linked-in-test-7cfa8/versions/b30594fafc320545","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase","firebase-web-framework":"next_ssr"}}
+[debug] [2026-09-15T16:57:14.130Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:14.130Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:14.130Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/projects/linked-in-test-7cfa8/billingInfo [none]
+[debug] [2026-09-15T16:57:14.366Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/projects/linked-in-test-7cfa8/billingInfo 200
+[debug] [2026-09-15T16:57:14.366Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/projects/linked-in-test-7cfa8/billingInfo {"name":"projects/linked-in-test-7cfa8/billingInfo","projectId":"linked-in-test-7cfa8","billingAccountName":"billingAccounts/015583-B6B7BE-475AA5","billingEnabled":false}
+[debug] [2026-09-15T16:57:14.366Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:14.366Z] Checked if tokens are valid: true, expires at: 1789494843607
+[debug] [2026-09-15T16:57:14.366Z] >>> [apiv2][query] GET https://cloudbilling.googleapis.com/v1/billingAccounts [none]
+[debug] [2026-09-15T16:57:14.514Z] <<< [apiv2][status] GET https://cloudbilling.googleapis.com/v1/billingAccounts 200
+[debug] [2026-09-15T16:57:14.514Z] <<< [apiv2][body] GET https://cloudbilling.googleapis.com/v1/billingAccounts {"billingAccounts":[{"name":"billingAccounts/013679-E8091F-0EBF67","open":false,"displayName":"Firebase Payment","masterBillingAccount":"","parent":"","currencyCode":"USD"},{"name":"billingAccounts/015583-B6B7BE-475AA5","open":false,"displayName":"My Billing Account","masterBillingAccount":"","parent":"","currencyCode":"USD"},{"name":"billingAccounts/01776E-6012B1-B7BEFB","open":false,"displayName":"Firebase Payment","masterBillingAccount":"","parent":"","currencyCode":"USD"},{"name":"billingAccounts/0197C1-C6E0AE-9E6E04","open":false,"displayName":"Firebase Payment","masterBillingAccount":"","parent":"","currencyCode":"USD"},{"name":"billingAccounts/01C381-D6DF23-547B4A","open":false,"displayName":"Firebase Payment","masterBillingAccount":"","parent":"","currencyCode":"USD"}],"nextPageToken":""}
+[info] 
+[info] Extension require your project to be upgraded to the Blaze plan. Please visit the following link to add a billing account:
+[info] 
+[info] https://console.cloud.google.com/billing/linkedaccount?project=linked-in-test-7cfa8
+[info] 
