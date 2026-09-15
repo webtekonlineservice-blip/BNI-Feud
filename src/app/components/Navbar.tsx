@@ -7,7 +7,7 @@ export default function Navbar() {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-gray-900 shadow-lg">
       <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 shrink-0">
+        <Link href="/" className="flex items-center gap-3 shrink-0">
           <Image
             src="/img/Logo.png"
             alt="Webtek"
@@ -15,6 +15,9 @@ export default function Navbar() {
             height={36}
             className="h-9 w-auto transition-all duration-300 hover:scale-110 hover:brightness-125 hover:drop-shadow-lg"
           />
+          <span className="inline-block bg-gradient-to-r from-orange-500 to-red-600 text-white text-xs font-black px-2.5 py-1 rounded-full uppercase tracking-wider shadow-lg animate-pulse">
+            Beta
+          </span>
         </Link>
       </div>
     </nav>
