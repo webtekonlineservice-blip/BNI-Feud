@@ -228,11 +228,17 @@ export default function PresentationPage() {
   }
 
   const revealAll = async () => {
+    if (!currentQuestion?.id) return
+    
     for (const ans of answers.filter(a => !a.is_revealed)) {
       await fetch('/api/answers', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ question_id: currentQuestion.id, answer_id: ans.id, action: 'reveal' }),
+        body: JSON.stringify({ 
+          question_id: currentQuestion.id, 
+          answer_id: ans.id, 
+          action: 'reveal' 
+        }),
       })
     }
   }
