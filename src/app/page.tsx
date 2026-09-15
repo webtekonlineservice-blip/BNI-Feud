@@ -318,13 +318,6 @@ export default function PresentationPage() {
                 <span className="text-bni-red font-bold">{p.total_score} pts</span>
               </span>
             ))}
-            {players.slice(0, 3).map((p, i) => (
-              <span key={`dup-${p.id}`} className="inline-flex items-center gap-2 text-sm font-medium text-white">
-                <span>{i === 0 ? '🥇' : i === 1 ? '🥈' : '🥉'}</span>
-                <span>{p.display_name}</span>
-                <span className="text-bni-red font-bold">{p.total_score} pts</span>
-              </span>
-            ))}
           </div>
         </div>
       )}
@@ -349,13 +342,6 @@ export default function PresentationPage() {
             <div className="animate-scroll flex whitespace-nowrap gap-8 px-4">
               {players.map((p, i) => (
                 <span key={p.id} className="inline-flex items-center gap-2 text-sm font-medium">
-                  <span>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`}</span>
-                  <span className="text-black">{p.display_name}</span>
-                  <span className="text-bni-red font-bold">{p.total_score}</span>
-                </span>
-              ))}
-              {players.map((p, i) => (
-                <span key={`dup-${p.id}`} className="inline-flex items-center gap-2 text-sm font-medium">
                   <span>{i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i+1}.`}</span>
                   <span className="text-black">{p.display_name}</span>
                   <span className="text-bni-red font-bold">{p.total_score}</span>
@@ -391,6 +377,14 @@ export default function PresentationPage() {
                 <span className="text-sm font-medium text-gray-600">Question {currentIndex + 1} of {questions.length}</span>
                 <button onClick={nextQuestion} className="w-14 h-14 bg-bni-red text-white rounded-full text-2xl font-bold hover:bg-bni-red-dark transition shadow-md">→</button>
               </div>
+
+              {/* All players answered indicator */}
+              {responses.length === players.length && players.length > 0 && (
+                <div className="mb-3 bg-green-600 text-white rounded-lg p-3 text-center animate-pulse shadow-lg">
+                  <p className="font-bold text-sm">✓ All {players.length} players have answered!</p>
+                  <p className="text-xs mt-1 opacity-90">Ready to move to next question →</p>
+                </div>
+              )}
 
               {/* Question header */}
               <div className="flex items-center justify-between mb-3">
