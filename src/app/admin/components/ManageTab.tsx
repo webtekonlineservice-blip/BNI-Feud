@@ -31,7 +31,7 @@ interface ManageTabProps {
   members: Member[];
   status: string;
   actionLoading: boolean;
-  onAction: (action: 'reset' | 'clearPlayers' | 'generate') => void;
+  onAction: (action: 'reset' | 'clearPlayers' | 'generate' | 'backup' | 'restore' | 'loadTest') => void;
   onSaveQuestion: (data: { question_id: string; question_text: string; member_id: string; answers: { id: string; answer_text: string; points: number }[] }) => void;
   onDeleteQuestion: (questionId: string) => void;
   onSavePlayer: (data: { player_id: string; display_name: string; total_score: number }) => void;
@@ -97,6 +97,30 @@ export default function ManageTab({
           className="px-4 py-2 bg-blue-600 text-white rounded font-medium hover:bg-blue-700 disabled:opacity-50 transition"
         >
           Regenerate Questions (AI)
+        </button>
+        
+        {/* Question Backup/Restore Buttons */}
+        <div className="w-full border-t border-gray-200 my-2"></div>
+        <button
+          onClick={() => onAction('backup')}
+          disabled={actionLoading}
+          className="px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 disabled:opacity-50 transition"
+        >
+          📦 Backup Questions
+        </button>
+        <button
+          onClick={() => onAction('restore')}
+          disabled={actionLoading}
+          className="px-4 py-2 bg-purple-600 text-white rounded font-medium hover:bg-purple-700 disabled:opacity-50 transition"
+        >
+          ↩️ Restore All from Backup
+        </button>
+        <button
+          onClick={() => onAction('loadTest')}
+          disabled={actionLoading}
+          className="px-4 py-2 bg-yellow-600 text-white rounded font-medium hover:bg-yellow-700 disabled:opacity-50 transition"
+        >
+          🧪 Load 3 Test Questions
         </button>
       </div>
 

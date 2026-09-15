@@ -155,7 +155,7 @@ export default function AdminPage() {
   };
 
   // Action handlers
-  const handleAction = async (action: 'reset' | 'clearPlayers' | 'generate') => {
+  const handleAction = async (action: 'reset' | 'clearPlayers' | 'generate' | 'backup' | 'restore' | 'loadTest') => {
     setActionLoading(true);
     setStatus('');
     try {
@@ -164,6 +164,12 @@ export default function AdminPage() {
         res = await fetch('/api/admin/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
       } else if (action === 'clearPlayers') {
         res = await fetch('/api/admin/reset', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ playersOnly: true }) });
+      } else if (action === 'backup') {
+        res = await fetch('/api/admin/questions-backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'backup' }) });
+      } else if (action === 'restore') {
+        res = await fetch('/api/admin/questions-backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) });
+      } else if (action === 'loadTest') {
+        res = await fetch('/api/admin/questions-backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'load-test' }) });
       } else {
         res = await fetch('/api/admin/generate', { method: 'POST' });
       }
