@@ -9,6 +9,7 @@ import ManageTab from './components/ManageTab';
 import MembersTab from './components/MembersTab';
 import AnalyticsTab from './components/AnalyticsTab';
 import SlidesTab from './components/SlidesTab';
+import QuestionBackupModal from './components/QuestionBackupModal';
 
 interface Question {
   id: string;
@@ -59,6 +60,9 @@ export default function AdminPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [status, setStatus] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
+
+  // Question Backup Modal
+  const [showBackupModal, setShowBackupModal] = useState(false);
 
   // Analytics
   const [analytics, setAnalytics] = useState<any>(null);
@@ -155,7 +159,7 @@ export default function AdminPage() {
   };
 
   // Action handlers
-  const handleAction = async (action: 'reset' | 'clearPlayers' | 'generate' | 'backup' | 'restore' | 'loadTest') => {
+  const handleAction = async (action: 'reset' | 'clearPlayers' | 'generate' | 'backup' | 'restore' | 'loadTest' | 'selectRestore') => {
     setActionLoading(true);
     setStatus('');
     try {
@@ -170,11 +174,34 @@ export default function AdminPage() {
         res = await fetch('/api/admin/questions-backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'restore' }) });
       } else if (action === 'loadTest') {
         res = await fetch('/api/admin/questions-backup', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'load-test' }) });
+      } else if (action === 'selectRestore') {
+        setShowBackupModal(true);
+        setActionLoading(false);
+        return;
       } else {
         res = await fetch('/api/admin/generate', { method: 'POST' });
       }
       const data = await res.json();
       setStatus(data.message || 'Action completed');
+      fetchData();
+    } catch (err: any) {
+      setStatus('Error: ' + (err.message || 'Unknown error'));
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleRestoreSelected = async (questionIds: string[]) => {
+    setActionLoading(true);
+    setStatus('');
+    try {
+      const res = await fetch('/api/admin/questions-backup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'restore-selected', questionIds })
+      });
+      const data = await res.json();
+      setStatus(data.message || 'Questions restored');
       fetchData();
     } catch (err: any) {
       setStatus('Error: ' + (err.message || 'Unknown error'));
@@ -415,6 +442,12 @@ export default function AdminPage() {
         />
       )}
 
+      {/* Question Backup Modal */}
+      <QuestionBackupModal
+        isOpen={showBackupModal}
+        onClose={() => setShowBackupModal(false)}
+        onRestore={handleRestoreSelected}
+      />
     </div>
   );
 }

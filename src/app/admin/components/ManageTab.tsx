@@ -31,7 +31,7 @@ interface ManageTabProps {
   members: Member[];
   status: string;
   actionLoading: boolean;
-  onAction: (action: 'reset' | 'clearPlayers' | 'generate' | 'backup' | 'restore' | 'loadTest') => void;
+  onAction: (action: 'reset' | 'clearPlayers' | 'generate' | 'backup' | 'restore' | 'loadTest' | 'selectRestore') => void;
   onSaveQuestion: (data: { question_id: string; question_text: string; member_id: string; answers: { id: string; answer_text: string; points: number }[] }) => void;
   onDeleteQuestion: (questionId: string) => void;
   onSavePlayer: (data: { player_id: string; display_name: string; total_score: number }) => void;
@@ -107,6 +107,13 @@ export default function ManageTab({
           className="px-4 py-2 bg-green-600 text-white rounded font-medium hover:bg-green-700 disabled:opacity-50 transition"
         >
           📦 Backup Questions
+        </button>
+        <button
+          onClick={() => onAction('selectRestore')}
+          disabled={actionLoading}
+          className="px-4 py-2 bg-indigo-600 text-white rounded font-medium hover:bg-indigo-700 disabled:opacity-50 transition"
+        >
+          🎯 Select &amp; Add from Backup
         </button>
         <button
           onClick={() => onAction('restore')}
