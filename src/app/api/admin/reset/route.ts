@@ -16,8 +16,16 @@ export async function POST(req: NextRequest) {
     const players = await adminDb.collection('players').get()
     for (const d of players.docs) await d.ref.delete()
 
-    // Don't touch questions or answers - keep them as-is
-    // Just reset game state to registration phase
+    // Reset all answers to unrevealed (turn green back to black)
+    const questions = await adminDb.collection('questions').get()
+    for (const q of questions.docs) {
+      const answers = await adminDb.collection('questions').doc(q.id).collection('answers').get()
+      for (const a of answers.docs) {
+        await a.ref.update({ is_revealed: false })
+      }
+    }
+
+    // Reset game state
     await adminDb.collection('game_state').doc('current').set({
       active_question_id: null,
       game_phase: 'registration',
@@ -28,7 +36,7 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
     })
 
-    return NextResponse.json({ message: `Reset complete: cleared ${players.size} players and ${responses.size} responses` })
+    return NextResponse.json({ message: `Reset complete: cleared ${players.size} players and ${responses.size} responses, reset answer boards` })
   } catch (e: any) {
     return NextResponse.json({ error: e.message }, { status: 500 })
   }
