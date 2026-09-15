@@ -516,10 +516,10 @@ export default function PresentationPage() {
                 </div>
               </div>
 
-              {/* Top 5 Leaderboard - Horizontal Layout */}
+              {/* Top 5 Leaderboard - Horizontal Layout (Right to Left) */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border-2 border-white/30">
                 <h2 className="text-2xl font-black text-white mb-6 text-center">🏅 Final Leaderboard 🏅</h2>
-                <div className="flex flex-wrap justify-center gap-4">
+                <div className="flex flex-wrap justify-center gap-4 flex-row-reverse">
                   {players.slice(0, 5).map((player, index) => {
                     // Get initials for avatar
                     const initials = player.display_name
