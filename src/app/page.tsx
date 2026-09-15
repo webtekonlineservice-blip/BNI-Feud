@@ -29,6 +29,10 @@ export default function PresentationPage() {
   const [notifications, setNotifications] = useState<{ id: string; type: 'match' | 'miss' | 'join'; name: string; answer: string; matched?: string; points?: number; x: number; y: number }[]>([])
   const playedIds = useRef(new Set<string>())
   const firstSnapshot = useRef(true)
+  
+  // End game modal state
+  const [showEndGameModal, setShowEndGameModal] = useState(false)
+  const [walkThroughIndex, setWalkThroughIndex] = useState(0)
 
   const currentQuestion = questions[currentIndex]
 
@@ -175,7 +179,20 @@ export default function PresentationPage() {
       setGameActive(false)
       setGameFinished(true)
       setShowConfetti(true)
+      setShowEndGameModal(true)
+      setDrawerOpen(false)
+      
+      // Send congratulations and notify winner
       fetch('/api/admin/congrats', { method: 'POST' }).catch(() => {})
+      fetch('/api/admin/notify-winner', { method: 'POST' })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) {
+            console.log(`✅ Winner ${data.winner} notified! Score: ${data.score} points`)
+          }
+        })
+        .catch(err => console.error('Failed to notify winner:', err))
+      
       setTimeout(() => setShowConfetti(false), 6000)
       return
     }
@@ -244,16 +261,16 @@ export default function PresentationPage() {
         <span>{players.length} player{players.length !== 1 ? 's' : ''}</span>
       </div>
 
-      {/* Slide navigation arrows */}
+      {/* Slide navigation arrows - positioned at top */}
       <button
         onClick={() => setCurrentSlide(s => Math.max(s - 1, 0))}
-        className="fixed left-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl z-10 transition"
+        className="fixed left-1/2 -translate-x-20 top-20 bg-black/60 hover:bg-black/90 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl z-20 transition shadow-lg border-2 border-white/20"
       >
         ‹
       </button>
       <button
         onClick={() => setCurrentSlide(s => Math.min(s + 1, slides.length - 1))}
-        className="fixed right-4 top-1/2 -translate-y-1/2 bg-black/40 hover:bg-black/70 text-white w-12 h-12 rounded-full flex items-center justify-center text-2xl z-10 transition"
+        className="fixed left-1/2 translate-x-6 top-20 bg-black/60 hover:bg-black/90 text-white w-14 h-14 rounded-full flex items-center justify-center text-3xl z-20 transition shadow-lg border-2 border-white/20"
       >
         ›
       </button>
@@ -368,6 +385,13 @@ export default function PresentationPage() {
           {/* Game active */}
           {gameActive && currentQuestion && (
             <div>
+              {/* Nav - Prev / Next arrows at top */}
+              <div className="flex justify-between items-center mb-4 pt-2">
+                <button onClick={prevQuestion} disabled={currentIndex === 0} className="w-14 h-14 bg-gray-100 border-2 border-gray-300 rounded-full text-2xl font-bold disabled:opacity-30 hover:bg-gray-200 transition shadow-md">←</button>
+                <span className="text-sm font-medium text-gray-600">Question {currentIndex + 1} of {questions.length}</span>
+                <button onClick={nextQuestion} className="w-14 h-14 bg-bni-red text-white rounded-full text-2xl font-bold hover:bg-bni-red-dark transition shadow-md">→</button>
+              </div>
+
               {/* Question header */}
               <div className="flex items-center justify-between mb-3">
                 <div>
@@ -424,14 +448,6 @@ export default function PresentationPage() {
                     {r.matched_answer ? <span className="text-green-600">+{r.points_earned}</span> : <span className="text-gray-300">✗</span>}
                   </div>
                 ))}
-              </div>
-
-              {/* Nav */}
-              {/* Prev / Next arrows on either side */}
-              <div className="flex justify-between items-center">
-                <button onClick={prevQuestion} disabled={currentIndex === 0} className="w-12 h-12 bg-gray-100 border border-gray-300 rounded-full text-xl font-bold disabled:opacity-30 hover:bg-gray-200 transition">←</button>
-                <span className="text-sm text-gray-500">Q{currentIndex + 1} of {questions.length}</span>
-                <button onClick={nextQuestion} className="w-12 h-12 bg-bni-red text-white rounded-full text-xl font-bold hover:bg-bni-red-dark transition">→</button>
               </div>
             </div>
           )}
