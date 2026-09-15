@@ -380,9 +380,9 @@ export default function PresentationPage() {
 
               {/* All players answered indicator */}
               {responses.length === players.length && players.length > 0 && (
-                <div className="mb-3 bg-green-600 text-white rounded-lg p-3 text-center animate-pulse shadow-lg">
-                  <p className="font-bold text-sm">✓ All {players.length} players have answered!</p>
-                  <p className="text-xs mt-1 opacity-90">Ready to move to next question →</p>
+                <div className="mb-3 bg-gradient-to-r from-orange-500 to-yellow-500 text-white rounded-xl p-4 text-center shadow-xl border-4 border-yellow-300 animate-bounce">
+                  <p className="font-black text-lg">✓ All {players.length} players have answered!</p>
+                  <p className="text-sm mt-1 font-bold">👉 Click the arrow to move to next question →</p>
                 </div>
               )}
 
