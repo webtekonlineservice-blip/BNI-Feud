@@ -63,6 +63,21 @@ export async function POST(req: NextRequest) {
     const displayName = rawMessage.slice(0, 30)
 
     try {
+      // Check if phone number already exists (shouldn't happen, but double-check)
+      const existingPlayer = await adminDb
+        .collection('players')
+        .where('phone_number', '==', from)
+        .limit(1)
+        .get()
+
+      if (!existingPlayer.empty) {
+        const existing = existingPlayer.docs[0].data() as any
+        twiml.message(
+          `Hi ${existing.display_name}! You're already registered for this game. Each player can only play once.\n\nText HELP for commands.\nText SCORE to see the leaderboard.`
+        )
+        return twimlResponse(twiml)
+      }
+
       const newPlayer = {
         phone_number: from,
         display_name: displayName,

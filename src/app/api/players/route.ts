@@ -40,9 +40,9 @@ export async function POST(req: NextRequest) {
       .get()
 
     if (!existing.empty) {
-      const doc = existing.docs[0]
-      await doc.ref.update({ display_name })
-      return NextResponse.json({ id: doc.id, ...doc.data(), display_name })
+      return NextResponse.json({ 
+        error: 'This phone number is already registered for this game. Each player can only play once.' 
+      }, { status: 409 })
     }
 
     // Create new player
