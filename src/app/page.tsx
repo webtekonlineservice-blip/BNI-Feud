@@ -476,6 +476,95 @@ export default function PresentationPage() {
           )}
         </div>
       </div>
+
+      {/* Winner Celebration Modal */}
+      {showEndGameModal && players.length > 0 && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
+          <div className="relative w-full max-w-4xl mx-4 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 rounded-3xl shadow-2xl overflow-hidden">
+            {/* Confetti/celebration background effect */}
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full animate-bounce"></div>
+              <div className="absolute top-20 right-20 w-16 h-16 bg-yellow-200 rounded-full animate-pulse"></div>
+              <div className="absolute bottom-20 left-20 w-12 h-12 bg-orange-300 rounded-full animate-bounce delay-100"></div>
+              <div className="absolute bottom-10 right-10 w-24 h-24 bg-red-300 rounded-full animate-pulse delay-200"></div>
+            </div>
+
+            <div className="relative p-8 md:p-12">
+              {/* Close button */}
+              <button 
+                onClick={() => setShowEndGameModal(false)}
+                className="absolute top-4 right-4 w-10 h-10 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center text-white text-2xl transition"
+              >
+                ×
+              </button>
+
+              {/* Winner Section */}
+              <div className="text-center mb-8">
+                <h1 className="text-5xl md:text-7xl font-black text-white mb-2 animate-bounce">
+                  🏆 CONGRATULATIONS! 🏆
+                </h1>
+                <div className="bg-white/20 backdrop-blur-md rounded-2xl p-6 md:p-8 mt-6 border-4 border-white/40">
+                  <p className="text-2xl md:text-3xl font-bold text-white mb-2">Winner</p>
+                  <p className="text-4xl md:text-6xl font-black text-white mb-4">
+                    {players[0]?.display_name}
+                  </p>
+                  <div className="inline-block bg-white rounded-full px-8 py-3">
+                    <span className="text-4xl md:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-red-600">
+                      {players[0]?.total_score} pts
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Top 5 Leaderboard */}
+              <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border-2 border-white/30">
+                <h2 className="text-2xl font-black text-white mb-4 text-center">🏅 Final Leaderboard 🏅</h2>
+                <div className="space-y-3">
+                  {players.slice(0, 5).map((player, index) => (
+                    <div 
+                      key={player.id}
+                      className={`flex items-center justify-between p-4 rounded-xl transition-all ${
+                        index === 0 
+                          ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 scale-105 shadow-xl' 
+                          : index === 1
+                          ? 'bg-gradient-to-r from-gray-300 to-gray-400'
+                          : index === 2
+                          ? 'bg-gradient-to-r from-orange-400 to-orange-600'
+                          : 'bg-white/20'
+                      }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <span className="text-3xl font-black">
+                          {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}
+                        </span>
+                        <span className={`text-xl font-bold ${index < 3 ? 'text-gray-900' : 'text-white'}`}>
+                          {player.display_name}
+                        </span>
+                      </div>
+                      <span className={`text-2xl font-black ${index < 3 ? 'text-gray-900' : 'text-white'}`}>
+                        {player.total_score} pts
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Play Again Button */}
+              <div className="mt-6 text-center">
+                <button
+                  onClick={() => {
+                    setShowEndGameModal(false)
+                    window.location.href = '/admin'
+                  }}
+                  className="bg-white hover:bg-gray-100 text-gray-900 font-black text-xl px-8 py-4 rounded-xl shadow-lg transition transform hover:scale-105"
+                >
+                  Reset Game & Play Again
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
