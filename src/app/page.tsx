@@ -481,12 +481,25 @@ export default function PresentationPage() {
       {showEndGameModal && players.length > 0 && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-sm">
           <div className="relative w-full max-w-4xl mx-4 bg-gradient-to-br from-yellow-400 via-orange-500 to-red-600 rounded-3xl shadow-2xl overflow-hidden">
-            {/* Confetti/celebration background effect */}
-            <div className="absolute inset-0 opacity-20">
-              <div className="absolute top-10 left-10 w-20 h-20 bg-white rounded-full animate-bounce"></div>
-              <div className="absolute top-20 right-20 w-16 h-16 bg-yellow-200 rounded-full animate-pulse"></div>
-              <div className="absolute bottom-20 left-20 w-12 h-12 bg-orange-300 rounded-full animate-bounce delay-100"></div>
-              <div className="absolute bottom-10 right-10 w-24 h-24 bg-red-300 rounded-full animate-pulse delay-200"></div>
+            {/* Animated Confetti Effect */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+              {[...Array(50)].map((_, i) => (
+                <div
+                  key={i}
+                  className="absolute animate-confetti-fall"
+                  style={{
+                    left: `${Math.random() * 100}%`,
+                    top: `-${Math.random() * 20}%`,
+                    width: `${Math.random() * 10 + 5}px`,
+                    height: `${Math.random() * 20 + 10}px`,
+                    backgroundColor: ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8', '#F7DC6F'][Math.floor(Math.random() * 7)],
+                    transform: `rotate(${Math.random() * 360}deg)`,
+                    animationDelay: `${Math.random() * 3}s`,
+                    animationDuration: `${Math.random() * 3 + 2}s`,
+                    opacity: 0.8,
+                  }}
+                />
+              ))}
             </div>
 
             <div className="relative p-8 md:p-12">

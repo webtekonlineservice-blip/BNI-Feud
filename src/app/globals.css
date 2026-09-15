@@ -19,3 +19,18 @@ body {
 .animate-scroll {
   animation: ticker 10s linear infinite;
 }
+
+@keyframes confetti-fall {
+  0% {
+    transform: translateY(0) rotateZ(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(100vh) rotateZ(720deg);
+    opacity: 0;
+  }
+}
+
+.animate-confetti-fall {
+  animation: confetti-fall 4s ease-in infinite;
+}
