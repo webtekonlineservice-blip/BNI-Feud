@@ -28,9 +28,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'phone_number and display_name required' }, { status: 400 })
     }
 
-    // Normalize phone to E.164
+    // Normalize phone to E.164 (US format)
     const normalized = phone_number.replace(/\D/g, '')
-    const e164 = normalized.startsWith('1') ? `+${normalized}` : `+1${normalized}`
+    
+    // Remove leading 1 if it's an 11-digit number (1 + 10-digit US number)
+    const cleaned = normalized.length === 11 && normalized.startsWith('1') 
+      ? normalized.slice(1) 
+      : normalized
+    
+    // Ensure it's a 10-digit US number, then add country code
+    if (cleaned.length !== 10) {
+      return NextResponse.json({ error: 'Invalid phone number. Please enter a 10-digit US phone number.' }, { status: 400 })
+    }
+    
+    const e164 = `+1${cleaned}`
 
     // Check if player already exists by phone number
     const existing = await adminDb
