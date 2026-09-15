@@ -3,19 +3,19 @@ import { adminDb } from '@/lib/firebaseAdmin'
 
 export const dynamic = 'force-dynamic'
 
-// PATCH /api/answers — reveal an answer or update game state
+// PATCH /api/answers — reveal/unreveal an answer or update game state
 export async function PATCH(req: NextRequest) {
   const body = await req.json()
 
-  // If this is a reveal action for a specific answer
-  if (body.action === 'reveal' && body.question_id && body.answer_id) {
+  // If this is a reveal/unreveal action for a specific answer
+  if ((body.action === 'reveal' || body.action === 'unreveal') && body.question_id && body.answer_id) {
     try {
       await adminDb
         .collection('questions')
         .doc(body.question_id)
         .collection('answers')
         .doc(body.answer_id)
-        .update({ is_revealed: true })
+        .update({ is_revealed: body.action === 'reveal' })
       
       return NextResponse.json({ success: true })
     } catch (e: any) {

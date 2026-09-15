@@ -243,6 +243,22 @@ export default function PresentationPage() {
     }
   }
 
+  const unrevealAll = async () => {
+    if (!currentQuestion?.id) return
+    
+    for (const ans of answers.filter(a => a.is_revealed)) {
+      await fetch('/api/answers', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          question_id: currentQuestion.id, 
+          answer_id: ans.id, 
+          action: 'unreveal' 
+        }),
+      })
+    }
+  }
+
   const revealed = answers.filter(a => a.is_revealed).length
 
   return (
@@ -432,12 +448,19 @@ export default function PresentationPage() {
                 ))}
               </div>
 
-              {/* Reveal All button */}
-              {answers.some(a => !a.is_revealed) && (
-                <button onClick={revealAll} className="w-full mb-3 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg border border-gray-600 transition">
-                  Reveal All
-                </button>
-              )}
+              {/* Reveal All / Unreveal All buttons */}
+              <div className="flex gap-2 mb-3">
+                {answers.some(a => !a.is_revealed) && (
+                  <button onClick={revealAll} className="flex-1 py-1.5 bg-gray-800 hover:bg-gray-700 text-white text-xs rounded-lg border border-gray-600 transition">
+                    Reveal All
+                  </button>
+                )}
+                {answers.some(a => a.is_revealed) && (
+                  <button onClick={unrevealAll} className="flex-1 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded-lg border border-gray-500 transition">
+                    Unreveal All
+                  </button>
+                )}
+              </div>
 
               {/* Responses */}
               <div className="bg-gray-50 border border-gray-200 rounded-lg p-2 mb-3 max-h-20 overflow-y-auto">
