@@ -516,36 +516,58 @@ export default function PresentationPage() {
                 </div>
               </div>
 
-              {/* Top 5 Leaderboard */}
+              {/* Top 5 Leaderboard - Horizontal Layout */}
               <div className="bg-white/10 backdrop-blur-md rounded-2xl p-6 border-2 border-white/30">
-                <h2 className="text-2xl font-black text-white mb-4 text-center">🏅 Final Leaderboard 🏅</h2>
-                <div className="space-y-3">
-                  {players.slice(0, 5).map((player, index) => (
-                    <div 
-                      key={player.id}
-                      className={`flex items-center justify-between p-4 rounded-xl transition-all ${
-                        index === 0 
-                          ? 'bg-gradient-to-r from-yellow-400 to-yellow-600 scale-105 shadow-xl' 
-                          : index === 1
-                          ? 'bg-gradient-to-r from-gray-300 to-gray-400'
-                          : index === 2
-                          ? 'bg-gradient-to-r from-orange-400 to-orange-600'
-                          : 'bg-white/20'
-                      }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <span className="text-3xl font-black">
-                          {index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : `${index + 1}.`}
-                        </span>
-                        <span className={`text-xl font-bold ${index < 3 ? 'text-gray-900' : 'text-white'}`}>
+                <h2 className="text-2xl font-black text-white mb-6 text-center">🏅 Final Leaderboard 🏅</h2>
+                <div className="flex flex-wrap justify-center gap-4">
+                  {players.slice(0, 5).map((player, index) => {
+                    // Get initials for avatar
+                    const initials = player.display_name
+                      .split(' ')
+                      .map(n => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2)
+                    
+                    // Colors for each place
+                    const colors = [
+                      { bg: 'bg-gradient-to-br from-yellow-400 to-yellow-600', text: 'text-gray-900', ring: 'ring-yellow-500', emoji: '🥇' },
+                      { bg: 'bg-gradient-to-br from-gray-300 to-gray-500', text: 'text-gray-900', ring: 'ring-gray-400', emoji: '🥈' },
+                      { bg: 'bg-gradient-to-br from-orange-400 to-orange-600', text: 'text-white', ring: 'ring-orange-500', emoji: '🥉' },
+                      { bg: 'bg-gradient-to-br from-blue-400 to-blue-600', text: 'text-white', ring: 'ring-blue-500', emoji: '4️⃣' },
+                      { bg: 'bg-gradient-to-br from-purple-400 to-purple-600', text: 'text-white', ring: 'ring-purple-500', emoji: '5️⃣' },
+                    ]
+                    const style = colors[index]
+
+                    return (
+                      <div 
+                        key={player.id}
+                        className={`flex flex-col items-center p-4 rounded-2xl transition-all transform hover:scale-105 ${
+                          index === 0 ? 'w-52 scale-110' : 'w-44'
+                        } bg-white/20 backdrop-blur-sm border-2 border-white/30 shadow-xl`}
+                      >
+                        {/* Rank emoji */}
+                        <div className="text-4xl mb-2">{style.emoji}</div>
+                        
+                        {/* Avatar with initials */}
+                        <div className={`w-20 h-20 rounded-full ${style.bg} ${style.text} flex items-center justify-center text-2xl font-black shadow-lg ring-4 ${style.ring} mb-3`}>
+                          {initials}
+                        </div>
+                        
+                        {/* Player name */}
+                        <p className="text-white font-bold text-center mb-2 line-clamp-1 px-2">
                           {player.display_name}
-                        </span>
+                        </p>
+                        
+                        {/* Score */}
+                        <div className={`${style.bg} rounded-full px-4 py-2 shadow-md`}>
+                          <span className={`${style.text} text-xl font-black`}>
+                            {player.total_score} pts
+                          </span>
+                        </div>
                       </div>
-                      <span className={`text-2xl font-black ${index < 3 ? 'text-gray-900' : 'text-white'}`}>
-                        {player.total_score} pts
-                      </span>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 
