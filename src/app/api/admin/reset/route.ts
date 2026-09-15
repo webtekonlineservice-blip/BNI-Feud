@@ -18,11 +18,18 @@ export async function POST(req: NextRequest) {
 
     // Reset all answers to unrevealed (turn green back to black)
     const questions = await adminDb.collection('questions').get()
+    let answerCount = 0
+    
     for (const q of questions.docs) {
       const answers = await adminDb.collection('questions').doc(q.id).collection('answers').get()
+      
+      // Use batch for better reliability
+      const batch = adminDb.batch()
       for (const a of answers.docs) {
-        await a.ref.update({ is_revealed: false })
+        batch.update(a.ref, { is_revealed: false })
+        answerCount++
       }
+      await batch.commit()
     }
 
     // Reset game state
@@ -36,9 +43,15 @@ export async function POST(req: NextRequest) {
       updated_at: new Date().toISOString(),
     })
 
-    return NextResponse.json({ message: `Reset complete: cleared ${players.size} players and ${responses.size} responses, reset answer boards` })
+    return NextResponse.json({ 
+      message: `Reset complete: cleared ${players.size} players, ${responses.size} responses, and reset ${answerCount} answers`,
+      players: players.size,
+      responses: responses.size,
+      answers: answerCount
+    })
   } catch (e: any) {
-    return NextResponse.json({ error: e.message }, { status: 500 })
+    console.error('Reset error:', e)
+    return NextResponse.json({ error: e.message, stack: e.stack }, { status: 500 })
   }
 }
 
