@@ -354,6 +354,14 @@ export default function PresentationPage() {
         {drawerOpen ? '▼ Close' : '▲ Open'}
       </button>
 
+      {/* Backdrop overlay - click to close drawer */}
+      {drawerOpen && (
+        <div 
+          className="fixed inset-0 z-20 bg-black/20 backdrop-blur-[2px]"
+          onClick={() => setDrawerOpen(false)}
+        />
+      )}
+
       {/* Game drawer */}
       <div className={`fixed bottom-0 left-0 right-0 z-30 bg-white border-t-4 border-bni-red rounded-t-3xl shadow-2xl transition-transform duration-300 ${
         drawerOpen ? 'translate-y-0' : 'translate-y-full'
