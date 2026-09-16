@@ -387,7 +387,7 @@ export default function PresentationPage() {
             <div className="text-center py-8">
               <h2 className="text-2xl font-black mb-2"><span className="text-bni-red">BNI</span> Family Feud</h2>
               <p className="text-gray-500 mb-6">{questions.length} questions · {players.length} players</p>
-              <button onClick={startGame} disabled={!questions.length} className="bg-bni-red hover:bg-bni-red-dark text-white font-bold text-lg px-8 py-3 rounded-xl transition disabled:opacity-50 animate-pulse">
+              <button onClick={startGame} disabled={!questions.length} className="bg-bni-red hover:bg-bni-red-dark text-white font-bold text-lg px-8 py-3 rounded-xl transition disabled:opacity-50">
                 Start Game
               </button>
               <div className="mt-4">
