@@ -48,8 +48,12 @@ Your Score: ${winner.total_score} points
 ${secondPlace ? `2nd Place: ${secondPlace.display_name} (${secondPlace.total_score} pts)` : ''}
 ${thirdPlace ? `3rd Place: ${thirdPlace.display_name} (${thirdPlace.total_score} pts)` : ''}
 
-You're the champion! 🎉
-Enjoy your prize!
+🎁 YOUR PRIZE - Choose One:
+🍽️  Lunch on us
+OR
+₿  $25 Bitcoin
+
+Reply with your choice!
 
 - BNI Think Big St. Louis`,
       from: twilioNumber,
